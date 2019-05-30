@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 IBM All Rights Reserved.
+ * Copyright 2019 IBM All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 import { AxiosResponse } from 'axios';
 import * as extend from 'extend';
-import { BaseService, getMissingParams } from 'ibm-cloud-sdk-core';
-import { FileObject } from 'ibm-cloud-sdk-core';
+import { BaseService, FileObject, getMissingParams } from 'ibm-cloud-sdk-core';
 import { getSdkHeaders } from '../lib/common';
 
 /**
@@ -40,6 +39,8 @@ class NaturalLanguageClassifierV1 extends BaseService {
    * @param {string} [options.iam_access_token] - An IAM access token fully managed by the application. Responsibility falls on the application to refresh the token, either before it expires or reactively upon receiving a 401 from the service, as any requests made with an expired token will fail.
    * @param {string} [options.iam_apikey] - An API key that can be used to request IAM tokens. If this API key is provided, the SDK will manage the token and handle the refreshing.
    * @param {string} [options.iam_url] - An optional URL for the IAM service API. Defaults to 'https://iam.cloud.ibm.com/identity/token'.
+   * @param {string} [options.iam_client_id] - client id (username) for request to iam service
+   * @param {string} [options.iam_client_secret] - client secret (password) for request to iam service
    * @param {boolean} [options.use_unauthenticated] - Set to `true` to avoid including an authorization header. This option may be useful for requests that are proxied.
    * @param {Object} [options.headers] - Default headers that shall be included with every request to the service.
    * @param {boolean} [options.headers.X-Watson-Learning-Opt-Out] - Set to `true` to opt-out of data collection. By default, all IBM Watson services log requests and their results. Logging is done only to improve the services for future users. The logged data is not shared or made public. If you are concerned with protecting the privacy of users' personal information or otherwise do not want your requests to be logged, you can opt out of logging.
@@ -192,7 +193,8 @@ class NaturalLanguageClassifierV1 extends BaseService {
    * (`ja`), Korean (`ko`), Brazilian Portuguese (`pt`), and Spanish (`es`).
    * @param {NodeJS.ReadableStream|FileObject|Buffer} params.training_data - Training data in CSV format. Each text
    * value must have at least one class. The data can include up to 3,000 classes and 20,000 records. For details, see
-   * [Data preparation](https://cloud.ibm.com/docs/services/natural-language-classifier/using-your-data.html).
+   * [Data
+   * preparation](https://cloud.ibm.com/docs/services/natural-language-classifier?topic=natural-language-classifier-using-your-data).
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
@@ -245,43 +247,33 @@ class NaturalLanguageClassifierV1 extends BaseService {
   };
 
   /**
-   * Delete classifier.
+   * List classifiers.
    *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.classifier_id - Classifier ID to delete.
+   * Returns an empty array if no classifiers are available.
+   *
+   * @param {Object} [params] - The parameters to send to the service.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public deleteClassifier(params: NaturalLanguageClassifierV1.DeleteClassifierParams, callback?: NaturalLanguageClassifierV1.Callback<NaturalLanguageClassifierV1.Empty>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['classifier_id'];
+  public listClassifiers(params?: NaturalLanguageClassifierV1.ListClassifiersParams, callback?: NaturalLanguageClassifierV1.Callback<NaturalLanguageClassifierV1.ClassifierList>): Promise<any> | void {
+    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
+    const _callback = (typeof params === 'function' && !callback) ? params : callback;
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.deleteClassifier(params, (err, bod, res) => {
+        this.listClassifiers(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
     }
 
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'classifier_id': _params.classifier_id
-    };
-
-    const sdkHeaders = getSdkHeaders('natural_language_classifier', 'v1', 'deleteClassifier');
+    const sdkHeaders = getSdkHeaders('natural_language_classifier', 'v1', 'listClassifiers');
 
     const parameters = {
       options: {
-        url: '/v1/classifiers/{classifier_id}',
-        method: 'DELETE',
-        path,
+        url: '/v1/classifiers',
+        method: 'GET',
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
@@ -345,33 +337,43 @@ class NaturalLanguageClassifierV1 extends BaseService {
   };
 
   /**
-   * List classifiers.
+   * Delete classifier.
    *
-   * Returns an empty array if no classifiers are available.
-   *
-   * @param {Object} [params] - The parameters to send to the service.
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.classifier_id - Classifier ID to delete.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public listClassifiers(params?: NaturalLanguageClassifierV1.ListClassifiersParams, callback?: NaturalLanguageClassifierV1.Callback<NaturalLanguageClassifierV1.ClassifierList>): Promise<any> | void {
-    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
-    const _callback = (typeof params === 'function' && !callback) ? params : callback;
+  public deleteClassifier(params: NaturalLanguageClassifierV1.DeleteClassifierParams, callback?: NaturalLanguageClassifierV1.Callback<NaturalLanguageClassifierV1.Empty>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['classifier_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.listClassifiers(params, (err, bod, res) => {
+        this.deleteClassifier(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
     }
 
-    const sdkHeaders = getSdkHeaders('natural_language_classifier', 'v1', 'listClassifiers');
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'classifier_id': _params.classifier_id
+    };
+
+    const sdkHeaders = getSdkHeaders('natural_language_classifier', 'v1', 'deleteClassifier');
 
     const parameters = {
       options: {
-        url: '/v1/classifiers',
-        method: 'GET',
+        url: '/v1/classifiers/{classifier_id}',
+        method: 'DELETE',
+        path,
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
@@ -400,6 +402,8 @@ namespace NaturalLanguageClassifierV1 {
     iam_access_token?: string;
     iam_apikey?: string;
     iam_url?: string;
+    iam_client_id?: string;
+    iam_client_secret?: string;
     username?: string;
     password?: string;
     use_unauthenticated?: boolean;
@@ -440,16 +444,14 @@ namespace NaturalLanguageClassifierV1 {
   export interface CreateClassifierParams {
     /** Metadata in JSON format. The metadata identifies the language of the data, and an optional name to identify the classifier. Specify the language with the 2-letter primary language code as assigned in ISO standard 639. Supported languages are English (`en`), Arabic (`ar`), French (`fr`), German, (`de`), Italian (`it`), Japanese (`ja`), Korean (`ko`), Brazilian Portuguese (`pt`), and Spanish (`es`). */
     metadata: NodeJS.ReadableStream|FileObject|Buffer;
-    /** Training data in CSV format. Each text value must have at least one class. The data can include up to 3,000 classes and 20,000 records. For details, see [Data preparation](https://cloud.ibm.com/docs/services/natural-language-classifier/using-your-data.html). */
+    /** Training data in CSV format. Each text value must have at least one class. The data can include up to 3,000 classes and 20,000 records. For details, see [Data preparation](https://cloud.ibm.com/docs/services/natural-language-classifier?topic=natural-language-classifier-using-your-data). */
     training_data: NodeJS.ReadableStream|FileObject|Buffer;
     headers?: Object;
     return_response?: boolean;
   }
 
-  /** Parameters for the `deleteClassifier` operation. */
-  export interface DeleteClassifierParams {
-    /** Classifier ID to delete. */
-    classifier_id: string;
+  /** Parameters for the `listClassifiers` operation. */
+  export interface ListClassifiersParams {
     headers?: Object;
     return_response?: boolean;
   }
@@ -462,8 +464,10 @@ namespace NaturalLanguageClassifierV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `listClassifiers` operation. */
-  export interface ListClassifiersParams {
+  /** Parameters for the `deleteClassifier` operation. */
+  export interface DeleteClassifierParams {
+    /** Classifier ID to delete. */
+    classifier_id: string;
     headers?: Object;
     return_response?: boolean;
   }

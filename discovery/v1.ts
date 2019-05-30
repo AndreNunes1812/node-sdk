@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 IBM All Rights Reserved.
+ * Copyright 2019 IBM All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 import { AxiosResponse } from 'axios';
 import * as extend from 'extend';
-import { BaseService, getMissingParams } from 'ibm-cloud-sdk-core';
-import { FileObject } from 'ibm-cloud-sdk-core';
+import { BaseService, FileObject, getMissingParams } from 'ibm-cloud-sdk-core';
 import { getSdkHeaders } from '../lib/common';
 
 /**
- * The IBM Watson&trade; Discovery Service is a cognitive search and content analytics engine that you can add to applications to identify patterns, trends and actionable insights to drive better decision-making. Securely unify structured and unstructured data with pre-enriched content, and use a simplified query language to eliminate the need for manual filtering of results.
+ * IBM Watson&trade; Discovery is a cognitive search and content analytics engine that you can add to applications to identify patterns, trends and actionable insights to drive better decision-making. Securely unify structured and unstructured data with pre-enriched content, and use a simplified query language to eliminate the need for manual filtering of results.
  */
 
 class DiscoveryV1 extends BaseService {
@@ -41,6 +40,8 @@ class DiscoveryV1 extends BaseService {
    * @param {string} [options.iam_access_token] - An IAM access token fully managed by the application. Responsibility falls on the application to refresh the token, either before it expires or reactively upon receiving a 401 from the service, as any requests made with an expired token will fail.
    * @param {string} [options.iam_apikey] - An API key that can be used to request IAM tokens. If this API key is provided, the SDK will manage the token and handle the refreshing.
    * @param {string} [options.iam_url] - An optional URL for the IAM service API. Defaults to 'https://iam.cloud.ibm.com/identity/token'.
+   * @param {string} [options.iam_client_id] - client id (username) for request to iam service
+   * @param {string} [options.iam_client_secret] - client secret (password) for request to iam service
    * @param {boolean} [options.use_unauthenticated] - Set to `true` to avoid including an authorization header. This option may be useful for requests that are proxied.
    * @param {Object} [options.headers] - Default headers that shall be included with every request to the service.
    * @param {boolean} [options.headers.X-Watson-Learning-Opt-Out] - Set to `true` to opt-out of data collection. By default, all IBM Watson services log requests and their results. Logging is done only to improve the services for future users. The logged data is not shared or made public. If you are concerned with protecting the privacy of users' personal information or otherwise do not want your requests to be logged, you can opt out of logging.
@@ -122,43 +123,39 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Delete environment.
+   * List environments.
    *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
+   * List existing environments for the service instance.
+   *
+   * @param {Object} [params] - The parameters to send to the service.
+   * @param {string} [params.name] - Show only the environment with the given name.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public deleteEnvironment(params: DiscoveryV1.DeleteEnvironmentParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteEnvironmentResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id'];
+  public listEnvironments(params?: DiscoveryV1.ListEnvironmentsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListEnvironmentsResponse>): Promise<any> | void {
+    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
+    const _callback = (typeof params === 'function' && !callback) ? params : callback;
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.deleteEnvironment(params, (err, bod, res) => {
+        this.listEnvironments(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
     }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id
+ 
+    const query = {
+      'name': _params.name
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteEnvironment');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listEnvironments');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}',
-        method: 'DELETE',
-        path,
+        url: '/v1/environments',
+        method: 'GET',
+        qs: query,
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
@@ -207,108 +204,6 @@ class DiscoveryV1 extends BaseService {
       options: {
         url: '/v1/environments/{environment_id}',
         method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List environments.
-   *
-   * List existing environments for the service instance.
-   *
-   * @param {Object} [params] - The parameters to send to the service.
-   * @param {string} [params.name] - Show only the environment with the given name.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listEnvironments(params?: DiscoveryV1.ListEnvironmentsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListEnvironmentsResponse>): Promise<any> | void {
-    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
-    const _callback = (typeof params === 'function' && !callback) ? params : callback;
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listEnvironments(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
- 
-    const query = {
-      'name': _params.name
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listEnvironments');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments',
-        method: 'GET',
-        qs: query,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List fields across collections.
-   *
-   * Gets a list of the unique fields (and their types) stored in the indexes of the specified collections.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string[]} params.collection_ids - A comma-separated list of collection IDs to be queried against.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listFields(params: DiscoveryV1.ListFieldsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListCollectionFieldsResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_ids'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listFields(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
- 
-    const query = {
-      'collection_ids': _params.collection_ids
-    };
-
-    const path = {
-      'environment_id': _params.environment_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listFields');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/fields',
-        method: 'GET',
-        qs: query,
         path,
       },
       defaultOptions: extend(true, {}, this._options, {
@@ -378,6 +273,112 @@ class DiscoveryV1 extends BaseService {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Delete environment.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public deleteEnvironment(params: DiscoveryV1.DeleteEnvironmentParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteEnvironmentResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.deleteEnvironment(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteEnvironment');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}',
+        method: 'DELETE',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * List fields across collections.
+   *
+   * Gets a list of the unique fields (and their types) stored in the indexes of the specified collections.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string[]} params.collection_ids - A comma-separated list of collection IDs to be queried against.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public listFields(params: DiscoveryV1.ListFieldsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListCollectionFieldsResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_ids'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.listFields(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+ 
+    const query = {
+      'collection_ids': _params.collection_ids
+    };
+
+    const path = {
+      'environment_id': _params.environment_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listFields');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/fields',
+        method: 'GET',
+        qs: query,
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -467,28 +468,25 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Delete a configuration.
+   * List configurations.
    *
-   * The deletion is performed unconditionally. A configuration deletion request succeeds even if the configuration is
-   * referenced by a collection or document ingestion. However, documents that have already been submitted for
-   * processing continue to use the deleted configuration. Documents are always processed with a snapshot of the
-   * configuration as it existed at the time the document was submitted.
+   * Lists existing configurations for the service instance.
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.configuration_id - The ID of the configuration.
+   * @param {string} [params.name] - Find configurations with the given name.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public deleteConfiguration(params: DiscoveryV1.DeleteConfigurationParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteConfigurationResponse>): Promise<any> | void {
+  public listConfigurations(params: DiscoveryV1.ListConfigurationsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListConfigurationsResponse>): Promise<any> | void {
     const _params = extend({}, params);
     const _callback = callback;
-    const requiredParams = ['environment_id', 'configuration_id'];
+    const requiredParams = ['environment_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.deleteConfiguration(params, (err, bod, res) => {
+        this.listConfigurations(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
@@ -498,18 +496,22 @@ class DiscoveryV1 extends BaseService {
     if (missingParams) {
       return _callback(missingParams);
     }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'configuration_id': _params.configuration_id
+ 
+    const query = {
+      'name': _params.name
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteConfiguration');
+    const path = {
+      'environment_id': _params.environment_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listConfigurations');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}/configurations/{configuration_id}',
-        method: 'DELETE',
+        url: '/v1/environments/{environment_id}/configurations',
+        method: 'GET',
+        qs: query,
         path,
       },
       defaultOptions: extend(true, {}, this._options, {
@@ -561,63 +563,6 @@ class DiscoveryV1 extends BaseService {
       options: {
         url: '/v1/environments/{environment_id}/configurations/{configuration_id}',
         method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List configurations.
-   *
-   * Lists existing configurations for the service instance.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} [params.name] - Find configurations with the given name.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listConfigurations(params: DiscoveryV1.ListConfigurationsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListConfigurationsResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listConfigurations(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
- 
-    const query = {
-      'name': _params.name
-    };
-
-    const path = {
-      'environment_id': _params.environment_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listConfigurations');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/configurations',
-        method: 'GET',
-        qs: query,
         path,
       },
       defaultOptions: extend(true, {}, this._options, {
@@ -707,6 +652,62 @@ class DiscoveryV1 extends BaseService {
     return this.createRequest(parameters, _callback);
   };
 
+  /**
+   * Delete a configuration.
+   *
+   * The deletion is performed unconditionally. A configuration deletion request succeeds even if the configuration is
+   * referenced by a collection or document ingestion. However, documents that have already been submitted for
+   * processing continue to use the deleted configuration. Documents are always processed with a snapshot of the
+   * configuration as it existed at the time the document was submitted.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.configuration_id - The ID of the configuration.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public deleteConfiguration(params: DiscoveryV1.DeleteConfigurationParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteConfigurationResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'configuration_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.deleteConfiguration(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'configuration_id': _params.configuration_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteConfiguration');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/configurations/{configuration_id}',
+        method: 'DELETE',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
   /*************************
    * testYourConfigurationOnADocument
    ************************/
@@ -729,9 +730,8 @@ class DiscoveryV1 extends BaseService {
    * testing a confiruration is 1 megabyte. Files larger than the supported size are rejected.
    * @param {string} [params.filename] - The filename for file.
    * @param {string} [params.file_content_type] - The content type of file.
-   * @param {string} [params.metadata] - If you're using the Data Crawler to upload your documents, you can test a
-   * document against the type of metadata that the Data Crawler might send. The maximum supported metadata file size is
-   * 1 MB. Metadata parts larger than 1 MB are rejected.
+   * @param {string} [params.metadata] - The maximum supported metadata file size is 1 MB. Metadata parts larger than 1
+   * MB are rejected.
    * Example:  ``` {
    *   "Creator": "Johnny Appleseed",
    *   "Subject": "Apples"
@@ -870,23 +870,25 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Delete a collection.
+   * List collections.
+   *
+   * Lists existing collections for the service instance.
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} [params.name] - Find collections with the given name.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public deleteCollection(params: DiscoveryV1.DeleteCollectionParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteCollectionResponse>): Promise<any> | void {
+  public listCollections(params: DiscoveryV1.ListCollectionsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListCollectionsResponse>): Promise<any> | void {
     const _params = extend({}, params);
     const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
+    const requiredParams = ['environment_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.deleteCollection(params, (err, bod, res) => {
+        this.listCollections(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
@@ -896,18 +898,22 @@ class DiscoveryV1 extends BaseService {
     if (missingParams) {
       return _callback(missingParams);
     }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
+ 
+    const query = {
+      'name': _params.name
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteCollection');
+    const path = {
+      'environment_id': _params.environment_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listCollections');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}',
-        method: 'DELETE',
+        url: '/v1/environments/{environment_id}/collections',
+        method: 'GET',
+        qs: query,
         path,
       },
       defaultOptions: extend(true, {}, this._options, {
@@ -959,116 +965,6 @@ class DiscoveryV1 extends BaseService {
       options: {
         url: '/v1/environments/{environment_id}/collections/{collection_id}',
         method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List collection fields.
-   *
-   * Gets a list of the unique fields (and their types) stored in the index.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listCollectionFields(params: DiscoveryV1.ListCollectionFieldsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListCollectionFieldsResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listCollectionFields(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listCollectionFields');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/fields',
-        method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List collections.
-   *
-   * Lists existing collections for the service instance.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} [params.name] - Find collections with the given name.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listCollections(params: DiscoveryV1.ListCollectionsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListCollectionsResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listCollections(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
- 
-    const query = {
-      'name': _params.name
-    };
-
-    const path = {
-      'environment_id': _params.environment_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listCollections');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections',
-        method: 'GET',
-        qs: query,
         path,
       },
       defaultOptions: extend(true, {}, this._options, {
@@ -1143,9 +1039,167 @@ class DiscoveryV1 extends BaseService {
     return this.createRequest(parameters, _callback);
   };
 
+  /**
+   * Delete a collection.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public deleteCollection(params: DiscoveryV1.DeleteCollectionParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteCollectionResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.deleteCollection(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteCollection');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}',
+        method: 'DELETE',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * List collection fields.
+   *
+   * Gets a list of the unique fields (and their types) stored in the index.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public listCollectionFields(params: DiscoveryV1.ListCollectionFieldsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.ListCollectionFieldsResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.listCollectionFields(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listCollectionFields');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/fields',
+        method: 'GET',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
   /*************************
    * queryModifications
    ************************/
+
+  /**
+   * Get the expansion list.
+   *
+   * Returns the current expansion list for the specified collection. If an expansion list is not specified, an object
+   * with empty expansion arrays is returned.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public listExpansions(params: DiscoveryV1.ListExpansionsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Expansions>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.listExpansions(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listExpansions');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/expansions',
+        method: 'GET',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
 
   /**
    * Create or update expansion list.
@@ -1222,27 +1276,26 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Create stopword list.
+   * Delete the expansion list.
    *
-   * Upload a custom stopword list to use with the specified collection.
+   * Remove the expansion information for this collection. The expansion list must be deleted to disable query expansion
+   * for a collection.
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params.environment_id - The ID of the environment.
    * @param {string} params.collection_id - The ID of the collection.
-   * @param {NodeJS.ReadableStream|FileObject|Buffer} params.stopword_file - The content of the stopword list to ingest.
-   * @param {string} params.stopword_filename - The filename for stopword_file.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public createStopwordList(params: DiscoveryV1.CreateStopwordListParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TokenDictStatusResponse>): Promise<any> | void {
+  public deleteExpansions(params: DiscoveryV1.DeleteExpansionsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
     const _params = extend({}, params);
     const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id', 'stopword_file', 'stopword_filename'];
+    const requiredParams = ['environment_id', 'collection_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.createStopwordList(params, (err, bod, res) => {
+        this.deleteExpansions(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
@@ -1252,32 +1305,75 @@ class DiscoveryV1 extends BaseService {
     if (missingParams) {
       return _callback(missingParams);
     }
-    const formData = {
-      'stopword_file': {
-        data: _params.stopword_file,
-        filename: _params.stopword_filename,
-        contentType: 'application/octet-stream'
-      }
-    };
 
     const path = {
       'environment_id': _params.environment_id,
       'collection_id': _params.collection_id
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'createStopwordList');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteExpansions');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/word_lists/stopwords',
-        method: 'POST',
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/expansions',
+        method: 'DELETE',
         path,
-        formData
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Get tokenization dictionary status.
+   *
+   * Returns the current status of the tokenization dictionary for the specified collection.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public getTokenizationDictionaryStatus(params: DiscoveryV1.GetTokenizationDictionaryStatusParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TokenDictStatusResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.getTokenizationDictionaryStatus(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getTokenizationDictionaryStatus');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/word_lists/tokenization_dictionary',
+        method: 'GET',
+        path,
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
         }, _params.headers),
       }),
     };
@@ -1340,112 +1436,6 @@ class DiscoveryV1 extends BaseService {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Delete the expansion list.
-   *
-   * Remove the expansion information for this collection. The expansion list must be deleted to disable query expansion
-   * for a collection.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public deleteExpansions(params: DiscoveryV1.DeleteExpansionsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.deleteExpansions(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteExpansions');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/expansions',
-        method: 'DELETE',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Delete a custom stopword list.
-   *
-   * Delete a custom stopword list from the collection. After a custom stopword list is deleted, the default list is
-   * used for the collection.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public deleteStopwordList(params: DiscoveryV1.DeleteStopwordListParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.deleteStopwordList(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteStopwordList');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/word_lists/stopwords',
-        method: 'DELETE',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
         }, _params.headers),
       }),
     };
@@ -1559,25 +1549,27 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Get tokenization dictionary status.
+   * Create stopword list.
    *
-   * Returns the current status of the tokenization dictionary for the specified collection.
+   * Upload a custom stopword list to use with the specified collection.
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params.environment_id - The ID of the environment.
    * @param {string} params.collection_id - The ID of the collection.
+   * @param {NodeJS.ReadableStream|FileObject|Buffer} params.stopword_file - The content of the stopword list to ingest.
+   * @param {string} params.stopword_filename - The filename for stopword_file.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public getTokenizationDictionaryStatus(params: DiscoveryV1.GetTokenizationDictionaryStatusParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TokenDictStatusResponse>): Promise<any> | void {
+  public createStopwordList(params: DiscoveryV1.CreateStopwordListParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TokenDictStatusResponse>): Promise<any> | void {
     const _params = extend({}, params);
     const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
+    const requiredParams = ['environment_id', 'collection_id', 'stopword_file', 'stopword_filename'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.getTokenizationDictionaryStatus(params, (err, bod, res) => {
+        this.createStopwordList(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
@@ -1587,23 +1579,32 @@ class DiscoveryV1 extends BaseService {
     if (missingParams) {
       return _callback(missingParams);
     }
+    const formData = {
+      'stopword_file': {
+        data: _params.stopword_file,
+        filename: _params.stopword_filename,
+        contentType: 'application/octet-stream'
+      }
+    };
 
     const path = {
       'environment_id': _params.environment_id,
       'collection_id': _params.collection_id
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getTokenizationDictionaryStatus');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'createStopwordList');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/word_lists/tokenization_dictionary',
-        method: 'GET',
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/word_lists/stopwords',
+        method: 'POST',
         path,
+        formData
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
         }, _params.headers),
       }),
     };
@@ -1612,10 +1613,10 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Get the expansion list.
+   * Delete a custom stopword list.
    *
-   * Returns the current expansion list for the specified collection. If an expansion list is not specified, an object
-   * with empty expansion arrays is returned.
+   * Delete a custom stopword list from the collection. After a custom stopword list is deleted, the default list is
+   * used for the collection.
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params.environment_id - The ID of the environment.
@@ -1624,14 +1625,14 @@ class DiscoveryV1 extends BaseService {
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public listExpansions(params: DiscoveryV1.ListExpansionsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Expansions>): Promise<any> | void {
+  public deleteStopwordList(params: DiscoveryV1.DeleteStopwordListParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
     const _params = extend({}, params);
     const _callback = callback;
     const requiredParams = ['environment_id', 'collection_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.listExpansions(params, (err, bod, res) => {
+        this.deleteStopwordList(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
@@ -1647,17 +1648,16 @@ class DiscoveryV1 extends BaseService {
       'collection_id': _params.collection_id
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listExpansions');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteStopwordList');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/expansions',
-        method: 'GET',
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/word_lists/stopwords',
+        method: 'DELETE',
         path,
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -1703,9 +1703,8 @@ class DiscoveryV1 extends BaseService {
    * testing a confiruration is 1 megabyte. Files larger than the supported size are rejected.
    * @param {string} [params.filename] - The filename for file.
    * @param {string} [params.file_content_type] - The content type of file.
-   * @param {string} [params.metadata] - If you're using the Data Crawler to upload your documents, you can test a
-   * document against the type of metadata that the Data Crawler might send. The maximum supported metadata file size is
-   * 1 MB. Metadata parts larger than 1 MB are rejected.
+   * @param {string} [params.metadata] - The maximum supported metadata file size is 1 MB. Metadata parts larger than 1
+   * MB are rejected.
    * Example:  ``` {
    *   "Creator": "Johnny Appleseed",
    *   "Subject": "Apples"
@@ -1758,62 +1757,6 @@ class DiscoveryV1 extends BaseService {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Delete a document.
-   *
-   * If the given document ID is invalid, or if the document is not found, then the a success response is returned (HTTP
-   * status code `200`) with the status set to 'deleted'.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {string} params.document_id - The ID of the document.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public deleteDocument(params: DiscoveryV1.DeleteDocumentParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteDocumentResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id', 'document_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.deleteDocument(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id,
-      'document_id': _params.document_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteDocument');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/documents/{document_id}',
-        method: 'DELETE',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -1896,9 +1839,8 @@ class DiscoveryV1 extends BaseService {
    * testing a confiruration is 1 megabyte. Files larger than the supported size are rejected.
    * @param {string} [params.filename] - The filename for file.
    * @param {string} [params.file_content_type] - The content type of file.
-   * @param {string} [params.metadata] - If you're using the Data Crawler to upload your documents, you can test a
-   * document against the type of metadata that the Data Crawler might send. The maximum supported metadata file size is
-   * 1 MB. Metadata parts larger than 1 MB are rejected.
+   * @param {string} [params.metadata] - The maximum supported metadata file size is 1 MB. Metadata parts larger than 1
+   * MB are rejected.
    * Example:  ``` {
    *   "Creator": "Johnny Appleseed",
    *   "Subject": "Apples"
@@ -1959,16 +1901,315 @@ class DiscoveryV1 extends BaseService {
     return this.createRequest(parameters, _callback);
   };
 
+  /**
+   * Delete a document.
+   *
+   * If the given document ID is invalid, or if the document is not found, then the a success response is returned (HTTP
+   * status code `200`) with the status set to 'deleted'.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} params.document_id - The ID of the document.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public deleteDocument(params: DiscoveryV1.DeleteDocumentParams, callback?: DiscoveryV1.Callback<DiscoveryV1.DeleteDocumentResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id', 'document_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.deleteDocument(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id,
+      'document_id': _params.document_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteDocument');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/documents/{document_id}',
+        method: 'DELETE',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
   /*************************
    * queries
    ************************/
 
   /**
-   * Long environment queries.
+   * Query a collection.
    *
-   * Complex queries might be too long for a standard method query. By using this method, you can construct longer
-   * queries. However, these queries may take longer to complete than the standard method. For details, see the
-   * [Discovery service
+   * By using this method, you can construct long queries. For details, see the [Discovery
+   * documentation](https://cloud.ibm.com/docs/services/discovery?topic=discovery-query-concepts#query-concepts).
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} [params.filter] - A cacheable query that excludes documents that don't mention the query content.
+   * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
+   * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
+   * full text, but with the most relevant documents listed first. Use a query search when you want to find the most
+   * relevant search results.
+   * @param {string} [params.natural_language_query] - A natural language query that returns relevant documents by
+   * utilizing training data and natural language understanding.
+   * @param {boolean} [params.passages] - A passages query that returns the most relevant passages from the results.
+   * @param {string} [params.aggregation] - An aggregation search that returns an exact answer by combining query search
+   * with filters. Useful for applications to build lists, tables, and time series. For a full list of possible
+   * aggregations, see the Query reference.
+   * @param {number} [params.count] - Number of results to return.
+   * @param {string} [params.return_fields] - A comma-separated list of the portion of the document hierarchy to return.
+   * @param {number} [params.offset] - The number of query results to skip at the beginning. For example, if the total
+   * number of results that are returned is 10 and the offset is 8, it returns the last two results.
+   * @param {string} [params.sort] - A comma-separated list of fields in the document to sort on. You can optionally
+   * specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the
+   * default sort direction if no prefix is specified. This parameter cannot be used in the same query as the **bias**
+   * parameter.
+   * @param {boolean} [params.highlight] - When true, a highlight field is returned for each result which contains the
+   * fields which match the query with `<em></em>` tags around the matching query terms.
+   * @param {string} [params.passages_fields] - A comma-separated list of fields that passages are drawn from. If this
+   * parameter not specified, then all top-level fields are included.
+   * @param {number} [params.passages_count] - The maximum number of passages to return. The search returns fewer
+   * passages if the requested total is not found. The default is `10`. The maximum is `100`.
+   * @param {number} [params.passages_characters] - The approximate number of characters that any one passage will have.
+   * @param {boolean} [params.deduplicate] - When `true`, and used with a Watson Discovery News collection, duplicate
+   * results (based on the contents of the **title** field) are removed. Duplicate comparison is limited to the current
+   * query only; **offset** is not considered. This parameter is currently Beta functionality.
+   * @param {string} [params.deduplicate_field] - When specified, duplicate results based on the field specified are
+   * removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not
+   * considered. This parameter is currently Beta functionality.
+   * @param {string} [params.collection_ids] - A comma-separated list of collection IDs to be queried against. Required
+   * when querying multiple collections, invalid when performing a single collection query.
+   * @param {boolean} [params.similar] - When `true`, results are returned based on their similarity to the document IDs
+   * specified in the **similar.document_ids** parameter.
+   * @param {string} [params.similar_document_ids] - A comma-separated list of document IDs to find similar documents.
+   *
+   * **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search
+   * with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied
+   * and reduce the scope.
+   * @param {string} [params.similar_fields] - A comma-separated list of field names that are used as a basis for
+   * comparison to identify similar documents. If not specified, the entire document is used for comparison.
+   * @param {string} [params.bias] - Field which the returned results will be biased against. The specified field must
+   * be either a **date** or **number** format. When a **date** type field is specified returned results are biased
+   * towards field values closer to the current date. When a **number** type field is specified, returned results are
+   * biased towards higher field values. This parameter cannot be used in the same query as the **sort** parameter.
+   * @param {boolean} [params.logging_opt_out] - If `true`, queries are not stored in the Discovery **Logs** endpoint.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public query(params: DiscoveryV1.QueryParams, callback?: DiscoveryV1.Callback<DiscoveryV1.QueryResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.query(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const body = {
+      'filter': _params.filter,
+      'query': _params.query,
+      'natural_language_query': _params.natural_language_query,
+      'passages': _params.passages,
+      'aggregation': _params.aggregation,
+      'count': _params.count,
+      'return': _params.return_fields,
+      'offset': _params.offset,
+      'sort': _params.sort,
+      'highlight': _params.highlight,
+      'passages.fields': _params.passages_fields,
+      'passages.count': _params.passages_count,
+      'passages.characters': _params.passages_characters,
+      'deduplicate': _params.deduplicate,
+      'deduplicate.field': _params.deduplicate_field,
+      'collection_ids': _params.collection_ids,
+      'similar': _params.similar,
+      'similar.document_ids': _params.similar_document_ids,
+      'similar.fields': _params.similar_fields,
+      'bias': _params.bias
+    };
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'query');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/query',
+        method: 'POST',
+        body,
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Watson-Logging-Opt-Out': _params.logging_opt_out
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Query system notices.
+   *
+   * Queries for notices (errors or warnings) that might have been generated by the system. Notices are generated when
+   * ingesting documents and performing relevance training. See the [Discovery
+   * documentation](https://cloud.ibm.com/docs/services/discovery?topic=discovery-query-concepts#query-concepts) for
+   * more details on the query language.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} [params.filter] - A cacheable query that excludes documents that don't mention the query content.
+   * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
+   * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
+   * full text, but with the most relevant documents listed first.
+   * @param {string} [params.natural_language_query] - A natural language query that returns relevant documents by
+   * utilizing training data and natural language understanding.
+   * @param {boolean} [params.passages] - A passages query that returns the most relevant passages from the results.
+   * @param {string} [params.aggregation] - An aggregation search that returns an exact answer by combining query search
+   * with filters. Useful for applications to build lists, tables, and time series. For a full list of possible
+   * aggregations, see the Query reference.
+   * @param {number} [params.count] - Number of results to return. The maximum for the **count** and **offset** values
+   * together in any one query is **10000**.
+   * @param {string[]} [params.return_fields] - A comma-separated list of the portion of the document hierarchy to
+   * return.
+   * @param {number} [params.offset] - The number of query results to skip at the beginning. For example, if the total
+   * number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the
+   * **count** and **offset** values together in any one query is **10000**.
+   * @param {string[]} [params.sort] - A comma-separated list of fields in the document to sort on. You can optionally
+   * specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the
+   * default sort direction if no prefix is specified.
+   * @param {boolean} [params.highlight] - When true, a highlight field is returned for each result which contains the
+   * fields which match the query with `<em></em>` tags around the matching query terms.
+   * @param {string[]} [params.passages_fields] - A comma-separated list of fields that passages are drawn from. If this
+   * parameter not specified, then all top-level fields are included.
+   * @param {number} [params.passages_count] - The maximum number of passages to return. The search returns fewer
+   * passages if the requested total is not found.
+   * @param {number} [params.passages_characters] - The approximate number of characters that any one passage will have.
+   * @param {string} [params.deduplicate_field] - When specified, duplicate results based on the field specified are
+   * removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not
+   * considered. This parameter is currently Beta functionality.
+   * @param {boolean} [params.similar] - When `true`, results are returned based on their similarity to the document IDs
+   * specified in the **similar.document_ids** parameter.
+   * @param {string[]} [params.similar_document_ids] - A comma-separated list of document IDs to find similar documents.
+   *
+   * **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search
+   * with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied
+   * and reduce the scope.
+   * @param {string[]} [params.similar_fields] - A comma-separated list of field names that are used as a basis for
+   * comparison to identify similar documents. If not specified, the entire document is used for comparison.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public queryNotices(params: DiscoveryV1.QueryNoticesParams, callback?: DiscoveryV1.Callback<DiscoveryV1.QueryNoticesResponse>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.queryNotices(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+ 
+    const query = {
+      'filter': _params.filter,
+      'query': _params.query,
+      'natural_language_query': _params.natural_language_query,
+      'passages': _params.passages,
+      'aggregation': _params.aggregation,
+      'count': _params.count,
+      'return': _params.return_fields,
+      'offset': _params.offset,
+      'sort': _params.sort,
+      'highlight': _params.highlight,
+      'passages.fields': _params.passages_fields,
+      'passages.count': _params.passages_count,
+      'passages.characters': _params.passages_characters,
+      'deduplicate.field': _params.deduplicate_field,
+      'similar': _params.similar,
+      'similar.document_ids': _params.similar_document_ids,
+      'similar.fields': _params.similar_fields
+    };
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'queryNotices');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/notices',
+        method: 'GET',
+        qs: query,
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Query multiple collections.
+   *
+   * By using this method, you can construct long queries that search multiple collection. For details, see the
+   * [Discovery
    * documentation](https://cloud.ibm.com/docs/services/discovery?topic=discovery-query-concepts#query-concepts).
    *
    * @param {Object} params - The parameters to send to the service.
@@ -1977,10 +2218,9 @@ class DiscoveryV1 extends BaseService {
    * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
    * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
    * full text, but with the most relevant documents listed first. Use a query search when you want to find the most
-   * relevant search results. You cannot use **natural_language_query** and **query** at the same time.
+   * relevant search results.
    * @param {string} [params.natural_language_query] - A natural language query that returns relevant documents by
-   * utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query**
-   * at the same time.
+   * utilizing training data and natural language understanding.
    * @param {boolean} [params.passages] - A passages query that returns the most relevant passages from the results.
    * @param {string} [params.aggregation] - An aggregation search that returns an exact answer by combining query search
    * with filters. Useful for applications to build lists, tables, and time series. For a full list of possible
@@ -2096,7 +2336,7 @@ class DiscoveryV1 extends BaseService {
    * Query multiple collection system notices.
    *
    * Queries for notices (errors or warnings) that might have been generated by the system. Notices are generated when
-   * ingesting documents and performing relevance training. See the [Discovery service
+   * ingesting documents and performing relevance training. See the [Discovery
    * documentation](https://cloud.ibm.com/docs/services/discovery?topic=discovery-query-concepts#query-concepts) for
    * more details on the query language.
    *
@@ -2106,11 +2346,9 @@ class DiscoveryV1 extends BaseService {
    * @param {string} [params.filter] - A cacheable query that excludes documents that don't mention the query content.
    * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
    * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
-   * full text, but with the most relevant documents listed first. Use a query search when you want to find the most
-   * relevant search results. You cannot use **natural_language_query** and **query** at the same time.
+   * full text, but with the most relevant documents listed first.
    * @param {string} [params.natural_language_query] - A natural language query that returns relevant documents by
-   * utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query**
-   * at the same time.
+   * utilizing training data and natural language understanding.
    * @param {string} [params.aggregation] - An aggregation search that returns an exact answer by combining query search
    * with filters. Useful for applications to build lists, tables, and time series. For a full list of possible
    * aggregations, see the Query reference.
@@ -2201,137 +2439,6 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Long collection queries.
-   *
-   * Complex queries might be too long for a standard method query. By using this method, you can construct longer
-   * queries. However, these queries may take longer to complete than the standard method. For details, see the
-   * [Discovery service
-   * documentation](https://cloud.ibm.com/docs/services/discovery?topic=discovery-query-concepts#query-concepts).
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {string} [params.filter] - A cacheable query that excludes documents that don't mention the query content.
-   * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
-   * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
-   * full text, but with the most relevant documents listed first. Use a query search when you want to find the most
-   * relevant search results. You cannot use **natural_language_query** and **query** at the same time.
-   * @param {string} [params.natural_language_query] - A natural language query that returns relevant documents by
-   * utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query**
-   * at the same time.
-   * @param {boolean} [params.passages] - A passages query that returns the most relevant passages from the results.
-   * @param {string} [params.aggregation] - An aggregation search that returns an exact answer by combining query search
-   * with filters. Useful for applications to build lists, tables, and time series. For a full list of possible
-   * aggregations, see the Query reference.
-   * @param {number} [params.count] - Number of results to return.
-   * @param {string} [params.return_fields] - A comma-separated list of the portion of the document hierarchy to return.
-   * @param {number} [params.offset] - The number of query results to skip at the beginning. For example, if the total
-   * number of results that are returned is 10 and the offset is 8, it returns the last two results.
-   * @param {string} [params.sort] - A comma-separated list of fields in the document to sort on. You can optionally
-   * specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the
-   * default sort direction if no prefix is specified. This parameter cannot be used in the same query as the **bias**
-   * parameter.
-   * @param {boolean} [params.highlight] - When true, a highlight field is returned for each result which contains the
-   * fields which match the query with `<em></em>` tags around the matching query terms.
-   * @param {string} [params.passages_fields] - A comma-separated list of fields that passages are drawn from. If this
-   * parameter not specified, then all top-level fields are included.
-   * @param {number} [params.passages_count] - The maximum number of passages to return. The search returns fewer
-   * passages if the requested total is not found. The default is `10`. The maximum is `100`.
-   * @param {number} [params.passages_characters] - The approximate number of characters that any one passage will have.
-   * @param {boolean} [params.deduplicate] - When `true`, and used with a Watson Discovery News collection, duplicate
-   * results (based on the contents of the **title** field) are removed. Duplicate comparison is limited to the current
-   * query only; **offset** is not considered. This parameter is currently Beta functionality.
-   * @param {string} [params.deduplicate_field] - When specified, duplicate results based on the field specified are
-   * removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not
-   * considered. This parameter is currently Beta functionality.
-   * @param {string} [params.collection_ids] - A comma-separated list of collection IDs to be queried against. Required
-   * when querying multiple collections, invalid when performing a single collection query.
-   * @param {boolean} [params.similar] - When `true`, results are returned based on their similarity to the document IDs
-   * specified in the **similar.document_ids** parameter.
-   * @param {string} [params.similar_document_ids] - A comma-separated list of document IDs to find similar documents.
-   *
-   * **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search
-   * with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied
-   * and reduce the scope.
-   * @param {string} [params.similar_fields] - A comma-separated list of field names that are used as a basis for
-   * comparison to identify similar documents. If not specified, the entire document is used for comparison.
-   * @param {string} [params.bias] - Field which the returned results will be biased against. The specified field must
-   * be either a **date** or **number** format. When a **date** type field is specified returned results are biased
-   * towards field values closer to the current date. When a **number** type field is specified, returned results are
-   * biased towards higher field values. This parameter cannot be used in the same query as the **sort** parameter.
-   * @param {boolean} [params.logging_opt_out] - If `true`, queries are not stored in the Discovery **Logs** endpoint.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public query(params: DiscoveryV1.QueryParams, callback?: DiscoveryV1.Callback<DiscoveryV1.QueryResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.query(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const body = {
-      'filter': _params.filter,
-      'query': _params.query,
-      'natural_language_query': _params.natural_language_query,
-      'passages': _params.passages,
-      'aggregation': _params.aggregation,
-      'count': _params.count,
-      'return': _params.return_fields,
-      'offset': _params.offset,
-      'sort': _params.sort,
-      'highlight': _params.highlight,
-      'passages.fields': _params.passages_fields,
-      'passages.count': _params.passages_count,
-      'passages.characters': _params.passages_characters,
-      'deduplicate': _params.deduplicate,
-      'deduplicate.field': _params.deduplicate_field,
-      'collection_ids': _params.collection_ids,
-      'similar': _params.similar,
-      'similar.document_ids': _params.similar_document_ids,
-      'similar.fields': _params.similar_fields,
-      'bias': _params.bias
-    };
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'query');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/query',
-        method: 'POST',
-        body,
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-Watson-Logging-Opt-Out': _params.logging_opt_out
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
    * Knowledge Graph entity query.
    *
    * See the [Knowledge Graph documentation](https://cloud.ibm.com/docs/services/discovery?topic=discovery-kg#kg) for
@@ -2397,124 +2504,6 @@ class DiscoveryV1 extends BaseService {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Query system notices.
-   *
-   * Queries for notices (errors or warnings) that might have been generated by the system. Notices are generated when
-   * ingesting documents and performing relevance training. See the [Discovery service
-   * documentation](https://cloud.ibm.com/docs/services/discovery?topic=discovery-query-concepts#query-concepts) for
-   * more details on the query language.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {string} [params.filter] - A cacheable query that excludes documents that don't mention the query content.
-   * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
-   * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
-   * full text, but with the most relevant documents listed first. Use a query search when you want to find the most
-   * relevant search results. You cannot use **natural_language_query** and **query** at the same time.
-   * @param {string} [params.natural_language_query] - A natural language query that returns relevant documents by
-   * utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query**
-   * at the same time.
-   * @param {boolean} [params.passages] - A passages query that returns the most relevant passages from the results.
-   * @param {string} [params.aggregation] - An aggregation search that returns an exact answer by combining query search
-   * with filters. Useful for applications to build lists, tables, and time series. For a full list of possible
-   * aggregations, see the Query reference.
-   * @param {number} [params.count] - Number of results to return. The maximum for the **count** and **offset** values
-   * together in any one query is **10000**.
-   * @param {string[]} [params.return_fields] - A comma-separated list of the portion of the document hierarchy to
-   * return.
-   * @param {number} [params.offset] - The number of query results to skip at the beginning. For example, if the total
-   * number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the
-   * **count** and **offset** values together in any one query is **10000**.
-   * @param {string[]} [params.sort] - A comma-separated list of fields in the document to sort on. You can optionally
-   * specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the
-   * default sort direction if no prefix is specified.
-   * @param {boolean} [params.highlight] - When true, a highlight field is returned for each result which contains the
-   * fields which match the query with `<em></em>` tags around the matching query terms.
-   * @param {string[]} [params.passages_fields] - A comma-separated list of fields that passages are drawn from. If this
-   * parameter not specified, then all top-level fields are included.
-   * @param {number} [params.passages_count] - The maximum number of passages to return. The search returns fewer
-   * passages if the requested total is not found.
-   * @param {number} [params.passages_characters] - The approximate number of characters that any one passage will have.
-   * @param {string} [params.deduplicate_field] - When specified, duplicate results based on the field specified are
-   * removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not
-   * considered. This parameter is currently Beta functionality.
-   * @param {boolean} [params.similar] - When `true`, results are returned based on their similarity to the document IDs
-   * specified in the **similar.document_ids** parameter.
-   * @param {string[]} [params.similar_document_ids] - A comma-separated list of document IDs to find similar documents.
-   *
-   * **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search
-   * with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied
-   * and reduce the scope.
-   * @param {string[]} [params.similar_fields] - A comma-separated list of field names that are used as a basis for
-   * comparison to identify similar documents. If not specified, the entire document is used for comparison.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public queryNotices(params: DiscoveryV1.QueryNoticesParams, callback?: DiscoveryV1.Callback<DiscoveryV1.QueryNoticesResponse>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.queryNotices(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
- 
-    const query = {
-      'filter': _params.filter,
-      'query': _params.query,
-      'natural_language_query': _params.natural_language_query,
-      'passages': _params.passages,
-      'aggregation': _params.aggregation,
-      'count': _params.count,
-      'return': _params.return_fields,
-      'offset': _params.offset,
-      'sort': _params.sort,
-      'highlight': _params.highlight,
-      'passages.fields': _params.passages_fields,
-      'passages.count': _params.passages_count,
-      'passages.characters': _params.passages_characters,
-      'deduplicate.field': _params.deduplicate_field,
-      'similar': _params.similar,
-      'similar.document_ids': _params.similar_document_ids,
-      'similar.fields': _params.similar_fields
-    };
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'queryNotices');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/notices',
-        method: 'GET',
-        qs: query,
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -2603,6 +2592,59 @@ class DiscoveryV1 extends BaseService {
    ************************/
 
   /**
+   * List training data.
+   *
+   * Lists the training data for the specified collection.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public listTrainingData(params: DiscoveryV1.ListTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingDataSet>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.listTrainingData(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listTrainingData');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data',
+        method: 'GET',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
    * Add query to training data.
    *
    * Adds a query to the training data for this collection. The query can contain a filter and natural language query.
@@ -2660,6 +2702,222 @@ class DiscoveryV1 extends BaseService {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Delete all training data.
+   *
+   * Deletes all training data from a collection.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public deleteAllTrainingData(params: DiscoveryV1.DeleteAllTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.deleteAllTrainingData(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteAllTrainingData');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data',
+        method: 'DELETE',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Get details about a query.
+   *
+   * Gets details for a specific training data query, including the query string and all examples.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} params.query_id - The ID of the query used for training.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public getTrainingData(params: DiscoveryV1.GetTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingQuery>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id', 'query_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.getTrainingData(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id,
+      'query_id': _params.query_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getTrainingData');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}',
+        method: 'GET',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Delete a training data query.
+   *
+   * Removes the training data query and all associated examples from the training data set.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} params.query_id - The ID of the query used for training.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public deleteTrainingData(params: DiscoveryV1.DeleteTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id', 'query_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.deleteTrainingData(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id,
+      'query_id': _params.query_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteTrainingData');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}',
+        method: 'DELETE',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * List examples for a training data query.
+   *
+   * List all examples for this training data query.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} params.query_id - The ID of the query used for training.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public listTrainingExamples(params: DiscoveryV1.ListTrainingExamplesParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingExampleList>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id', 'query_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.listTrainingExamples(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id,
+      'query_id': _params.query_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listTrainingExamples');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}/examples',
+        method: 'GET',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -2734,112 +2992,6 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Delete all training data.
-   *
-   * Deletes all training data from a collection.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public deleteAllTrainingData(params: DiscoveryV1.DeleteAllTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.deleteAllTrainingData(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteAllTrainingData');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data',
-        method: 'DELETE',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Delete a training data query.
-   *
-   * Removes the training data query and all associated examples from the training data set.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {string} params.query_id - The ID of the query used for training.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public deleteTrainingData(params: DiscoveryV1.DeleteTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Empty>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id', 'query_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.deleteTrainingData(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id,
-      'query_id': _params.query_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteTrainingData');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}',
-        method: 'DELETE',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
    * Delete example for training data query.
    *
    * Deletes the example document with the given ID from the training data query.
@@ -2888,226 +3040,6 @@ class DiscoveryV1 extends BaseService {
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Get details about a query.
-   *
-   * Gets details for a specific training data query, including the query string and all examples.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {string} params.query_id - The ID of the query used for training.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public getTrainingData(params: DiscoveryV1.GetTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingQuery>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id', 'query_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.getTrainingData(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id,
-      'query_id': _params.query_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getTrainingData');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}',
-        method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Get details for training data example.
-   *
-   * Gets the details for this training example.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {string} params.query_id - The ID of the query used for training.
-   * @param {string} params.example_id - The ID of the document as it is indexed.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public getTrainingExample(params: DiscoveryV1.GetTrainingExampleParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingExample>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id', 'query_id', 'example_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.getTrainingExample(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id,
-      'query_id': _params.query_id,
-      'example_id': _params.example_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getTrainingExample');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}/examples/{example_id}',
-        method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List training data.
-   *
-   * Lists the training data for the specified collection.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listTrainingData(params: DiscoveryV1.ListTrainingDataParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingDataSet>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listTrainingData(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listTrainingData');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data',
-        method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List examples for a training data query.
-   *
-   * List all examples for this training data query.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.collection_id - The ID of the collection.
-   * @param {string} params.query_id - The ID of the query used for training.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listTrainingExamples(params: DiscoveryV1.ListTrainingExamplesParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingExampleList>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'collection_id', 'query_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listTrainingExamples(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'collection_id': _params.collection_id,
-      'query_id': _params.query_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listTrainingExamples');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}/examples',
-        method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -3174,6 +3106,63 @@ class DiscoveryV1 extends BaseService {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Get details for training data example.
+   *
+   * Gets the details for this training example.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.collection_id - The ID of the collection.
+   * @param {string} params.query_id - The ID of the query used for training.
+   * @param {string} params.example_id - The ID of the document as it is indexed.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public getTrainingExample(params: DiscoveryV1.GetTrainingExampleParams, callback?: DiscoveryV1.Callback<DiscoveryV1.TrainingExample>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'collection_id', 'query_id', 'example_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.getTrainingExample(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'collection_id': _params.collection_id,
+      'query_id': _params.query_id,
+      'example_id': _params.example_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getTrainingExample');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/collections/{collection_id}/training_data/{query_id}/examples/{example_id}',
+        method: 'GET',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -3300,45 +3289,53 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * Percentage of queries with an associated event.
+   * Search the query and event log.
    *
-   * The percentage of queries using the **natural_language_query** parameter that have a corresponding \"click\" event
-   * over a specified time window.  This metric requires having integrated event tracking in your application using the
-   * **Events** API.
+   * Searches the query and event log to find query sessions that match the specified criteria. Searching the **logs**
+   * endpoint uses the standard Discovery query syntax for the parameters that are supported.
    *
    * @param {Object} [params] - The parameters to send to the service.
-   * @param {string} [params.start_time] - Metric is computed from data recorded after this timestamp; must be in
-   * `YYYY-MM-DDThh:mm:ssZ` format.
-   * @param {string} [params.end_time] - Metric is computed from data recorded before this timestamp; must be in
-   * `YYYY-MM-DDThh:mm:ssZ` format.
-   * @param {string} [params.result_type] - The type of result to consider when calculating the metric.
+   * @param {string} [params.filter] - A cacheable query that excludes documents that don't mention the query content.
+   * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
+   * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
+   * full text, but with the most relevant documents listed first.
+   * @param {number} [params.count] - Number of results to return. The maximum for the **count** and **offset** values
+   * together in any one query is **10000**.
+   * @param {number} [params.offset] - The number of query results to skip at the beginning. For example, if the total
+   * number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the
+   * **count** and **offset** values together in any one query is **10000**.
+   * @param {string[]} [params.sort] - A comma-separated list of fields in the document to sort on. You can optionally
+   * specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the
+   * default sort direction if no prefix is specified.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public getMetricsEventRate(params?: DiscoveryV1.GetMetricsEventRateParams, callback?: DiscoveryV1.Callback<DiscoveryV1.MetricResponse>): Promise<any> | void {
+  public queryLog(params?: DiscoveryV1.QueryLogParams, callback?: DiscoveryV1.Callback<DiscoveryV1.LogQueryResponse>): Promise<any> | void {
     const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
     const _callback = (typeof params === 'function' && !callback) ? params : callback;
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.getMetricsEventRate(params, (err, bod, res) => {
+        this.queryLog(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
     }
  
     const query = {
-      'start_time': _params.start_time,
-      'end_time': _params.end_time,
-      'result_type': _params.result_type
+      'filter': _params.filter,
+      'query': _params.query,
+      'count': _params.count,
+      'offset': _params.offset,
+      'sort': _params.sort
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getMetricsEventRate');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'queryLog');
 
     const parameters = {
       options: {
-        url: '/v1/metrics/event_rate',
+        url: '/v1/logs',
         method: 'GET',
         qs: query,
       },
@@ -3509,6 +3506,59 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
+   * Percentage of queries with an associated event.
+   *
+   * The percentage of queries using the **natural_language_query** parameter that have a corresponding \"click\" event
+   * over a specified time window.  This metric requires having integrated event tracking in your application using the
+   * **Events** API.
+   *
+   * @param {Object} [params] - The parameters to send to the service.
+   * @param {string} [params.start_time] - Metric is computed from data recorded after this timestamp; must be in
+   * `YYYY-MM-DDThh:mm:ssZ` format.
+   * @param {string} [params.end_time] - Metric is computed from data recorded before this timestamp; must be in
+   * `YYYY-MM-DDThh:mm:ssZ` format.
+   * @param {string} [params.result_type] - The type of result to consider when calculating the metric.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public getMetricsEventRate(params?: DiscoveryV1.GetMetricsEventRateParams, callback?: DiscoveryV1.Callback<DiscoveryV1.MetricResponse>): Promise<any> | void {
+    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
+    const _callback = (typeof params === 'function' && !callback) ? params : callback;
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.getMetricsEventRate(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+ 
+    const query = {
+      'start_time': _params.start_time,
+      'end_time': _params.end_time,
+      'result_type': _params.result_type
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getMetricsEventRate');
+
+    const parameters = {
+      options: {
+        url: '/v1/metrics/event_rate',
+        method: 'GET',
+        qs: query,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
    * Most frequent query tokens with an event.
    *
    * The most frequent query tokens parsed from the **natural_language_query** parameter and their corresponding
@@ -3556,57 +3606,52 @@ class DiscoveryV1 extends BaseService {
     return this.createRequest(parameters, _callback);
   };
 
+  /*************************
+   * credentials
+   ************************/
+
   /**
-   * Search the query and event log.
+   * List credentials.
    *
-   * Searches the query and event log to find query sessions that match the specified criteria. Searching the **logs**
-   * endpoint uses the standard Discovery query syntax for the parameters that are supported.
+   * List all the source credentials that have been created for this service instance.
    *
-   * @param {Object} [params] - The parameters to send to the service.
-   * @param {string} [params.filter] - A cacheable query that excludes documents that don't mention the query content.
-   * Filter searches are better for metadata-type searches and for assessing the concepts in the data set.
-   * @param {string} [params.query] - A query search returns all documents in your data set with full enrichments and
-   * full text, but with the most relevant documents listed first. Use a query search when you want to find the most
-   * relevant search results. You cannot use **natural_language_query** and **query** at the same time.
-   * @param {number} [params.count] - Number of results to return. The maximum for the **count** and **offset** values
-   * together in any one query is **10000**.
-   * @param {number} [params.offset] - The number of query results to skip at the beginning. For example, if the total
-   * number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the
-   * **count** and **offset** values together in any one query is **10000**.
-   * @param {string[]} [params.sort] - A comma-separated list of fields in the document to sort on. You can optionally
-   * specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the
-   * default sort direction if no prefix is specified.
+   *  **Note:**  All credentials are sent over an encrypted connection and encrypted at rest.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public queryLog(params?: DiscoveryV1.QueryLogParams, callback?: DiscoveryV1.Callback<DiscoveryV1.LogQueryResponse>): Promise<any> | void {
-    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
-    const _callback = (typeof params === 'function' && !callback) ? params : callback;
+  public listCredentials(params: DiscoveryV1.ListCredentialsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.CredentialsList>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.queryLog(params, (err, bod, res) => {
+        this.listCredentials(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
     }
- 
-    const query = {
-      'filter': _params.filter,
-      'query': _params.query,
-      'count': _params.count,
-      'offset': _params.offset,
-      'sort': _params.sort
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'queryLog');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listCredentials');
 
     const parameters = {
       options: {
-        url: '/v1/logs',
+        url: '/v1/environments/{environment_id}/credentials',
         method: 'GET',
-        qs: query,
+        path,
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
@@ -3617,10 +3662,6 @@ class DiscoveryV1 extends BaseService {
 
     return this.createRequest(parameters, _callback);
   };
-
-  /*************************
-   * credentials
-   ************************/
 
   /**
    * Create credentials.
@@ -3641,6 +3682,9 @@ class DiscoveryV1 extends BaseService {
    * @param {CredentialDetails} [params.credential_details] - Object containing details of the stored credentials.
    *
    * Obtain credentials for your source from the administrator of the source.
+   * @param {string} [params.status] - The current status of this set of credentials. `connected` indicates that the
+   * credentials are available to use with the source configuration of a collection. `invalid` refers to the credentials
+   * (for example, the password provided has expired) and must be corrected before they can be used with a collection.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
@@ -3665,7 +3709,8 @@ class DiscoveryV1 extends BaseService {
 
     const body = {
       'source_type': _params.source_type,
-      'credential_details': _params.credential_details
+      'credential_details': _params.credential_details,
+      'status': _params.status
     };
 
     const path = {
@@ -3678,6 +3723,137 @@ class DiscoveryV1 extends BaseService {
       options: {
         url: '/v1/environments/{environment_id}/credentials',
         method: 'POST',
+        body,
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * View Credentials.
+   *
+   * Returns details about the specified credentials.
+   *
+   *  **Note:** Secure credential information such as a password or SSH key is never returned and must be obtained from
+   * the source system.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.credential_id - The unique identifier for a set of source credentials.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public getCredentials(params: DiscoveryV1.GetCredentialsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Credentials>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'credential_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.getCredentials(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'credential_id': _params.credential_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getCredentials');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/credentials/{credential_id}',
+        method: 'GET',
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Update credentials.
+   *
+   * Updates an existing set of source credentials.
+   *
+   * **Note:** All credentials are sent over an encrypted connection and encrypted at rest.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.credential_id - The unique identifier for a set of source credentials.
+   * @param {string} [params.source_type] - The source that this credentials object connects to.
+   * -  `box` indicates the credentials are used to connect an instance of Enterprise Box.
+   * -  `salesforce` indicates the credentials are used to connect to Salesforce.
+   * -  `sharepoint` indicates the credentials are used to connect to Microsoft SharePoint Online.
+   * -  `web_crawl` indicates the credentials are used to perform a web crawl.
+   * =  `cloud_object_storage` indicates the credentials are used to connect to an IBM Cloud Object Store.
+   * @param {CredentialDetails} [params.credential_details] - Object containing details of the stored credentials.
+   *
+   * Obtain credentials for your source from the administrator of the source.
+   * @param {string} [params.status] - The current status of this set of credentials. `connected` indicates that the
+   * credentials are available to use with the source configuration of a collection. `invalid` refers to the credentials
+   * (for example, the password provided has expired) and must be corrected before they can be used with a collection.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public updateCredentials(params: DiscoveryV1.UpdateCredentialsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Credentials>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['environment_id', 'credential_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.updateCredentials(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+
+    const body = {
+      'source_type': _params.source_type,
+      'credential_details': _params.credential_details,
+      'status': _params.status
+    };
+
+    const path = {
+      'environment_id': _params.environment_id,
+      'credential_id': _params.credential_id
+    };
+
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'updateCredentials');
+
+    const parameters = {
+      options: {
+        url: '/v1/environments/{environment_id}/credentials/{credential_id}',
+        method: 'PUT',
         body,
         path,
       },
@@ -3745,68 +3921,14 @@ class DiscoveryV1 extends BaseService {
     return this.createRequest(parameters, _callback);
   };
 
-  /**
-   * View Credentials.
-   *
-   * Returns details about the specified credentials.
-   *
-   *  **Note:** Secure credential information such as a password or SSH key is never returned and must be obtained from
-   * the source system.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.credential_id - The unique identifier for a set of source credentials.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public getCredentials(params: DiscoveryV1.GetCredentialsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Credentials>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'credential_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.getCredentials(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'credential_id': _params.credential_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'getCredentials');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/credentials/{credential_id}',
-        method: 'GET',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
+  /*************************
+   * gatewayConfiguration
+   ************************/
 
   /**
-   * List credentials.
+   * List Gateways.
    *
-   * List all the source credentials that have been created for this service instance.
-   *
-   *  **Note:**  All credentials are sent over an encrypted connection and encrypted at rest.
+   * List the currently configured gateways.
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params.environment_id - The ID of the environment.
@@ -3814,14 +3936,14 @@ class DiscoveryV1 extends BaseService {
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public listCredentials(params: DiscoveryV1.ListCredentialsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.CredentialsList>): Promise<any> | void {
+  public listGateways(params: DiscoveryV1.ListGatewaysParams, callback?: DiscoveryV1.Callback<DiscoveryV1.GatewayList>): Promise<any> | void {
     const _params = extend({}, params);
     const _callback = callback;
     const requiredParams = ['environment_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.listCredentials(params, (err, bod, res) => {
+        this.listGateways(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
@@ -3836,11 +3958,11 @@ class DiscoveryV1 extends BaseService {
       'environment_id': _params.environment_id
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listCredentials');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listGateways');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}/credentials',
+        url: '/v1/environments/{environment_id}/gateways',
         method: 'GET',
         path,
       },
@@ -3853,81 +3975,6 @@ class DiscoveryV1 extends BaseService {
 
     return this.createRequest(parameters, _callback);
   };
-
-  /**
-   * Update credentials.
-   *
-   * Updates an existing set of source credentials.
-   *
-   * **Note:** All credentials are sent over an encrypted connection and encrypted at rest.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.credential_id - The unique identifier for a set of source credentials.
-   * @param {string} [params.source_type] - The source that this credentials object connects to.
-   * -  `box` indicates the credentials are used to connect an instance of Enterprise Box.
-   * -  `salesforce` indicates the credentials are used to connect to Salesforce.
-   * -  `sharepoint` indicates the credentials are used to connect to Microsoft SharePoint Online.
-   * -  `web_crawl` indicates the credentials are used to perform a web crawl.
-   * =  `cloud_object_storage` indicates the credentials are used to connect to an IBM Cloud Object Store.
-   * @param {CredentialDetails} [params.credential_details] - Object containing details of the stored credentials.
-   *
-   * Obtain credentials for your source from the administrator of the source.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public updateCredentials(params: DiscoveryV1.UpdateCredentialsParams, callback?: DiscoveryV1.Callback<DiscoveryV1.Credentials>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'credential_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.updateCredentials(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const body = {
-      'source_type': _params.source_type,
-      'credential_details': _params.credential_details
-    };
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'credential_id': _params.credential_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'updateCredentials');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/credentials/{credential_id}',
-        method: 'PUT',
-        body,
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /*************************
-   * gatewayConfiguration
-   ************************/
 
   /**
    * Create Gateway.
@@ -3980,59 +4027,6 @@ class DiscoveryV1 extends BaseService {
         headers: extend(true, sdkHeaders, {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * Delete Gateway.
-   *
-   * Delete the specified gateway configuration.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.environment_id - The ID of the environment.
-   * @param {string} params.gateway_id - The requested gateway ID.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public deleteGateway(params: DiscoveryV1.DeleteGatewayParams, callback?: DiscoveryV1.Callback<DiscoveryV1.GatewayDelete>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['environment_id', 'gateway_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.deleteGateway(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
-
-    const path = {
-      'environment_id': _params.environment_id,
-      'gateway_id': _params.gateway_id
-    };
-
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteGateway');
-
-    const parameters = {
-      options: {
-        url: '/v1/environments/{environment_id}/gateways/{gateway_id}',
-        method: 'DELETE',
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
         }, _params.headers),
       }),
     };
@@ -4094,24 +4088,25 @@ class DiscoveryV1 extends BaseService {
   };
 
   /**
-   * List Gateways.
+   * Delete Gateway.
    *
-   * List the currently configured gateways.
+   * Delete the specified gateway configuration.
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params.environment_id - The ID of the environment.
+   * @param {string} params.gateway_id - The requested gateway ID.
    * @param {Object} [params.headers] - Custom request headers
    * @param {Function} [callback] - The callback that handles the response.
    * @returns {Promise<any>|void}
    */
-  public listGateways(params: DiscoveryV1.ListGatewaysParams, callback?: DiscoveryV1.Callback<DiscoveryV1.GatewayList>): Promise<any> | void {
+  public deleteGateway(params: DiscoveryV1.DeleteGatewayParams, callback?: DiscoveryV1.Callback<DiscoveryV1.GatewayDelete>): Promise<any> | void {
     const _params = extend({}, params);
     const _callback = callback;
-    const requiredParams = ['environment_id'];
+    const requiredParams = ['environment_id', 'gateway_id'];
 
     if (!_callback) {
       return new Promise((resolve, reject) => {
-        this.listGateways(params, (err, bod, res) => {
+        this.deleteGateway(params, (err, bod, res) => {
           err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
         });
       });
@@ -4123,15 +4118,16 @@ class DiscoveryV1 extends BaseService {
     }
 
     const path = {
-      'environment_id': _params.environment_id
+      'environment_id': _params.environment_id,
+      'gateway_id': _params.gateway_id
     };
 
-    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'listGateways');
+    const sdkHeaders = getSdkHeaders('discovery', 'v1', 'deleteGateway');
 
     const parameters = {
       options: {
-        url: '/v1/environments/{environment_id}/gateways',
-        method: 'GET',
+        url: '/v1/environments/{environment_id}/gateways/{gateway_id}',
+        method: 'DELETE',
         path,
       },
       defaultOptions: extend(true, {}, this._options, {
@@ -4162,6 +4158,8 @@ namespace DiscoveryV1 {
     iam_access_token?: string;
     iam_apikey?: string;
     iam_url?: string;
+    iam_client_id?: string;
+    iam_client_secret?: string;
     username?: string;
     password?: string;
     use_unauthenticated?: boolean;
@@ -4207,22 +4205,6 @@ namespace DiscoveryV1 {
     }
   }
 
-  /** Parameters for the `deleteEnvironment` operation. */
-  export interface DeleteEnvironmentParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `getEnvironment` operation. */
-  export interface GetEnvironmentParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
   /** Parameters for the `listEnvironments` operation. */
   export interface ListEnvironmentsParams {
     /** Show only the environment with the given name. */
@@ -4231,12 +4213,10 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `listFields` operation. */
-  export interface ListFieldsParams {
+  /** Parameters for the `getEnvironment` operation. */
+  export interface GetEnvironmentParams {
     /** The ID of the environment. */
     environment_id: string;
-    /** A comma-separated list of collection IDs to be queried against. */
-    collection_ids: string[];
     headers?: Object;
     return_response?: boolean;
   }
@@ -4270,6 +4250,24 @@ namespace DiscoveryV1 {
     }
   }
 
+  /** Parameters for the `deleteEnvironment` operation. */
+  export interface DeleteEnvironmentParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `listFields` operation. */
+  export interface ListFieldsParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** A comma-separated list of collection IDs to be queried against. */
+    collection_ids: string[];
+    headers?: Object;
+    return_response?: boolean;
+  }
+
   /** Parameters for the `createConfiguration` operation. */
   export interface CreateConfigurationParams {
     /** The ID of the environment. */
@@ -4290,12 +4288,12 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `deleteConfiguration` operation. */
-  export interface DeleteConfigurationParams {
+  /** Parameters for the `listConfigurations` operation. */
+  export interface ListConfigurationsParams {
     /** The ID of the environment. */
     environment_id: string;
-    /** The ID of the configuration. */
-    configuration_id: string;
+    /** Find configurations with the given name. */
+    name?: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -4306,16 +4304,6 @@ namespace DiscoveryV1 {
     environment_id: string;
     /** The ID of the configuration. */
     configuration_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `listConfigurations` operation. */
-  export interface ListConfigurationsParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** Find configurations with the given name. */
-    name?: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -4342,6 +4330,16 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
+  /** Parameters for the `deleteConfiguration` operation. */
+  export interface DeleteConfigurationParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the configuration. */
+    configuration_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
   /** Parameters for the `testConfigurationInEnvironment` operation. */
   export interface TestConfigurationInEnvironmentParams {
     /** The ID of the environment. */
@@ -4354,7 +4352,7 @@ namespace DiscoveryV1 {
     filename?: string;
     /** The content type of file. */
     file_content_type?: TestConfigurationInEnvironmentConstants.FileContentType | string;
-    /** If you're using the Data Crawler to upload your documents, you can test a document against the type of metadata that the Data Crawler might send. The maximum supported metadata file size is 1 MB. Metadata parts larger than 1 MB are rejected. Example:  ``` { "Creator": "Johnny Appleseed", "Subject": "Apples" } ```. */
+    /** The maximum supported metadata file size is 1 MB. Metadata parts larger than 1 MB are rejected. Example:  ``` { "Creator": "Johnny Appleseed", "Subject": "Apples" } ```. */
     metadata?: string;
     /** Specify to only run the input document through the given step instead of running the input document through the entire ingestion workflow. Valid values are `convert`, `enrich`, and `normalize`. */
     step?: TestConfigurationInEnvironmentConstants.Step | string;
@@ -4420,12 +4418,12 @@ namespace DiscoveryV1 {
     }
   }
 
-  /** Parameters for the `deleteCollection` operation. */
-  export interface DeleteCollectionParams {
+  /** Parameters for the `listCollections` operation. */
+  export interface ListCollectionsParams {
     /** The ID of the environment. */
     environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
+    /** Find collections with the given name. */
+    name?: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -4436,26 +4434,6 @@ namespace DiscoveryV1 {
     environment_id: string;
     /** The ID of the collection. */
     collection_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `listCollectionFields` operation. */
-  export interface ListCollectionFieldsParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `listCollections` operation. */
-  export interface ListCollectionsParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** Find collections with the given name. */
-    name?: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -4476,6 +4454,36 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
+  /** Parameters for the `deleteCollection` operation. */
+  export interface DeleteCollectionParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `listCollectionFields` operation. */
+  export interface ListCollectionFieldsParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `listExpansions` operation. */
+  export interface ListExpansionsParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
   /** Parameters for the `createExpansions` operation. */
   export interface CreateExpansionsParams {
     /** The ID of the environment. */
@@ -4484,32 +4492,6 @@ namespace DiscoveryV1 {
     collection_id: string;
     /** An array of query expansion definitions. Each object in the **expansions** array represents a term or set of terms that will be expanded into other terms. Each expansion object can be configured as bidirectional or unidirectional. Bidirectional means that all terms are expanded to all other terms in the object. Unidirectional means that a set list of terms can be expanded into a second list of terms. To create a bi-directional expansion specify an **expanded_terms** array. When found in a query, all items in the **expanded_terms** array are then expanded to the other items in the same array. To create a uni-directional expansion, specify both an array of **input_terms** and an array of **expanded_terms**. When items in the **input_terms** array are present in a query, they are expanded using the items listed in the **expanded_terms** array. */
     expansions: Expansion[];
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `createStopwordList` operation. */
-  export interface CreateStopwordListParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** The content of the stopword list to ingest. */
-    stopword_file: NodeJS.ReadableStream|FileObject|Buffer;
-    /** The filename for stopword_file. */
-    stopword_filename: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `createTokenizationDictionary` operation. */
-  export interface CreateTokenizationDictionaryParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** An array of tokenization rules. Each rule contains, the original `text` string, component `tokens`, any alternate character set `readings`, and which `part_of_speech` the text is from. */
-    tokenization_rules?: TokenDictRule[];
     headers?: Object;
     return_response?: boolean;
   }
@@ -4524,12 +4506,24 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `deleteStopwordList` operation. */
-  export interface DeleteStopwordListParams {
+  /** Parameters for the `getTokenizationDictionaryStatus` operation. */
+  export interface GetTokenizationDictionaryStatusParams {
     /** The ID of the environment. */
     environment_id: string;
     /** The ID of the collection. */
     collection_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `createTokenizationDictionary` operation. */
+  export interface CreateTokenizationDictionaryParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** An array of tokenization rules. Each rule contains, the original `text` string, component `tokens`, any alternate character set `readings`, and which `part_of_speech` the text is from. */
+    tokenization_rules?: TokenDictRule[];
     headers?: Object;
     return_response?: boolean;
   }
@@ -4554,18 +4548,22 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `getTokenizationDictionaryStatus` operation. */
-  export interface GetTokenizationDictionaryStatusParams {
+  /** Parameters for the `createStopwordList` operation. */
+  export interface CreateStopwordListParams {
     /** The ID of the environment. */
     environment_id: string;
     /** The ID of the collection. */
     collection_id: string;
+    /** The content of the stopword list to ingest. */
+    stopword_file: NodeJS.ReadableStream|FileObject|Buffer;
+    /** The filename for stopword_file. */
+    stopword_filename: string;
     headers?: Object;
     return_response?: boolean;
   }
 
-  /** Parameters for the `listExpansions` operation. */
-  export interface ListExpansionsParams {
+  /** Parameters for the `deleteStopwordList` operation. */
+  export interface DeleteStopwordListParams {
     /** The ID of the environment. */
     environment_id: string;
     /** The ID of the collection. */
@@ -4586,7 +4584,7 @@ namespace DiscoveryV1 {
     filename?: string;
     /** The content type of file. */
     file_content_type?: AddDocumentConstants.FileContentType | string;
-    /** If you're using the Data Crawler to upload your documents, you can test a document against the type of metadata that the Data Crawler might send. The maximum supported metadata file size is 1 MB. Metadata parts larger than 1 MB are rejected. Example:  ``` { "Creator": "Johnny Appleseed", "Subject": "Apples" } ```. */
+    /** The maximum supported metadata file size is 1 MB. Metadata parts larger than 1 MB are rejected. Example:  ``` { "Creator": "Johnny Appleseed", "Subject": "Apples" } ```. */
     metadata?: string;
     headers?: Object;
     return_response?: boolean;
@@ -4603,18 +4601,6 @@ namespace DiscoveryV1 {
       TEXT_HTML = 'text/html',
       APPLICATION_XHTML_XML = 'application/xhtml+xml',
     }
-  }
-
-  /** Parameters for the `deleteDocument` operation. */
-  export interface DeleteDocumentParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** The ID of the document. */
-    document_id: string;
-    headers?: Object;
-    return_response?: boolean;
   }
 
   /** Parameters for the `getDocumentStatus` operation. */
@@ -4643,7 +4629,7 @@ namespace DiscoveryV1 {
     filename?: string;
     /** The content type of file. */
     file_content_type?: UpdateDocumentConstants.FileContentType | string;
-    /** If you're using the Data Crawler to upload your documents, you can test a document against the type of metadata that the Data Crawler might send. The maximum supported metadata file size is 1 MB. Metadata parts larger than 1 MB are rejected. Example:  ``` { "Creator": "Johnny Appleseed", "Subject": "Apples" } ```. */
+    /** The maximum supported metadata file size is 1 MB. Metadata parts larger than 1 MB are rejected. Example:  ``` { "Creator": "Johnny Appleseed", "Subject": "Apples" } ```. */
     metadata?: string;
     headers?: Object;
     return_response?: boolean;
@@ -4662,15 +4648,123 @@ namespace DiscoveryV1 {
     }
   }
 
+  /** Parameters for the `deleteDocument` operation. */
+  export interface DeleteDocumentParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** The ID of the document. */
+    document_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `query` operation. */
+  export interface QueryParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
+    filter?: string;
+    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. Use a query search when you want to find the most relevant search results. */
+    query?: string;
+    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. */
+    natural_language_query?: string;
+    /** A passages query that returns the most relevant passages from the results. */
+    passages?: boolean;
+    /** An aggregation search that returns an exact answer by combining query search with filters. Useful for applications to build lists, tables, and time series. For a full list of possible aggregations, see the Query reference. */
+    aggregation?: string;
+    /** Number of results to return. */
+    count?: number;
+    /** A comma-separated list of the portion of the document hierarchy to return. */
+    return_fields?: string;
+    /** The number of query results to skip at the beginning. For example, if the total number of results that are returned is 10 and the offset is 8, it returns the last two results. */
+    offset?: number;
+    /** A comma-separated list of fields in the document to sort on. You can optionally specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the default sort direction if no prefix is specified. This parameter cannot be used in the same query as the **bias** parameter. */
+    sort?: string;
+    /** When true, a highlight field is returned for each result which contains the fields which match the query with `<em></em>` tags around the matching query terms. */
+    highlight?: boolean;
+    /** A comma-separated list of fields that passages are drawn from. If this parameter not specified, then all top-level fields are included. */
+    passages_fields?: string;
+    /** The maximum number of passages to return. The search returns fewer passages if the requested total is not found. The default is `10`. The maximum is `100`. */
+    passages_count?: number;
+    /** The approximate number of characters that any one passage will have. */
+    passages_characters?: number;
+    /** When `true`, and used with a Watson Discovery News collection, duplicate results (based on the contents of the **title** field) are removed. Duplicate comparison is limited to the current query only; **offset** is not considered. This parameter is currently Beta functionality. */
+    deduplicate?: boolean;
+    /** When specified, duplicate results based on the field specified are removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not considered. This parameter is currently Beta functionality. */
+    deduplicate_field?: string;
+    /** A comma-separated list of collection IDs to be queried against. Required when querying multiple collections, invalid when performing a single collection query. */
+    collection_ids?: string;
+    /** When `true`, results are returned based on their similarity to the document IDs specified in the **similar.document_ids** parameter. */
+    similar?: boolean;
+    /** A comma-separated list of document IDs to find similar documents. **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied and reduce the scope. */
+    similar_document_ids?: string;
+    /** A comma-separated list of field names that are used as a basis for comparison to identify similar documents. If not specified, the entire document is used for comparison. */
+    similar_fields?: string;
+    /** Field which the returned results will be biased against. The specified field must be either a **date** or **number** format. When a **date** type field is specified returned results are biased towards field values closer to the current date. When a **number** type field is specified, returned results are biased towards higher field values. This parameter cannot be used in the same query as the **sort** parameter. */
+    bias?: string;
+    /** If `true`, queries are not stored in the Discovery **Logs** endpoint. */
+    logging_opt_out?: boolean;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `queryNotices` operation. */
+  export interface QueryNoticesParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
+    filter?: string;
+    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. */
+    query?: string;
+    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. */
+    natural_language_query?: string;
+    /** A passages query that returns the most relevant passages from the results. */
+    passages?: boolean;
+    /** An aggregation search that returns an exact answer by combining query search with filters. Useful for applications to build lists, tables, and time series. For a full list of possible aggregations, see the Query reference. */
+    aggregation?: string;
+    /** Number of results to return. The maximum for the **count** and **offset** values together in any one query is **10000**. */
+    count?: number;
+    /** A comma-separated list of the portion of the document hierarchy to return. */
+    return_fields?: string[];
+    /** The number of query results to skip at the beginning. For example, if the total number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the **count** and **offset** values together in any one query is **10000**. */
+    offset?: number;
+    /** A comma-separated list of fields in the document to sort on. You can optionally specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the default sort direction if no prefix is specified. */
+    sort?: string[];
+    /** When true, a highlight field is returned for each result which contains the fields which match the query with `<em></em>` tags around the matching query terms. */
+    highlight?: boolean;
+    /** A comma-separated list of fields that passages are drawn from. If this parameter not specified, then all top-level fields are included. */
+    passages_fields?: string[];
+    /** The maximum number of passages to return. The search returns fewer passages if the requested total is not found. */
+    passages_count?: number;
+    /** The approximate number of characters that any one passage will have. */
+    passages_characters?: number;
+    /** When specified, duplicate results based on the field specified are removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not considered. This parameter is currently Beta functionality. */
+    deduplicate_field?: string;
+    /** When `true`, results are returned based on their similarity to the document IDs specified in the **similar.document_ids** parameter. */
+    similar?: boolean;
+    /** A comma-separated list of document IDs to find similar documents. **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied and reduce the scope. */
+    similar_document_ids?: string[];
+    /** A comma-separated list of field names that are used as a basis for comparison to identify similar documents. If not specified, the entire document is used for comparison. */
+    similar_fields?: string[];
+    headers?: Object;
+    return_response?: boolean;
+  }
+
   /** Parameters for the `federatedQuery` operation. */
   export interface FederatedQueryParams {
     /** The ID of the environment. */
     environment_id: string;
     /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
     filter?: string;
-    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. Use a query search when you want to find the most relevant search results. You cannot use **natural_language_query** and **query** at the same time. */
+    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. Use a query search when you want to find the most relevant search results. */
     query?: string;
-    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query** at the same time. */
+    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. */
     natural_language_query?: string;
     /** A passages query that returns the most relevant passages from the results. */
     passages?: boolean;
@@ -4720,9 +4814,9 @@ namespace DiscoveryV1 {
     collection_ids: string[];
     /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
     filter?: string;
-    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. Use a query search when you want to find the most relevant search results. You cannot use **natural_language_query** and **query** at the same time. */
+    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. */
     query?: string;
-    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query** at the same time. */
+    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. */
     natural_language_query?: string;
     /** An aggregation search that returns an exact answer by combining query search with filters. Useful for applications to build lists, tables, and time series. For a full list of possible aggregations, see the Query reference. */
     aggregation?: string;
@@ -4744,58 +4838,6 @@ namespace DiscoveryV1 {
     similar_document_ids?: string[];
     /** A comma-separated list of field names that are used as a basis for comparison to identify similar documents. If not specified, the entire document is used for comparison. */
     similar_fields?: string[];
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `query` operation. */
-  export interface QueryParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
-    filter?: string;
-    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. Use a query search when you want to find the most relevant search results. You cannot use **natural_language_query** and **query** at the same time. */
-    query?: string;
-    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query** at the same time. */
-    natural_language_query?: string;
-    /** A passages query that returns the most relevant passages from the results. */
-    passages?: boolean;
-    /** An aggregation search that returns an exact answer by combining query search with filters. Useful for applications to build lists, tables, and time series. For a full list of possible aggregations, see the Query reference. */
-    aggregation?: string;
-    /** Number of results to return. */
-    count?: number;
-    /** A comma-separated list of the portion of the document hierarchy to return. */
-    return_fields?: string;
-    /** The number of query results to skip at the beginning. For example, if the total number of results that are returned is 10 and the offset is 8, it returns the last two results. */
-    offset?: number;
-    /** A comma-separated list of fields in the document to sort on. You can optionally specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the default sort direction if no prefix is specified. This parameter cannot be used in the same query as the **bias** parameter. */
-    sort?: string;
-    /** When true, a highlight field is returned for each result which contains the fields which match the query with `<em></em>` tags around the matching query terms. */
-    highlight?: boolean;
-    /** A comma-separated list of fields that passages are drawn from. If this parameter not specified, then all top-level fields are included. */
-    passages_fields?: string;
-    /** The maximum number of passages to return. The search returns fewer passages if the requested total is not found. The default is `10`. The maximum is `100`. */
-    passages_count?: number;
-    /** The approximate number of characters that any one passage will have. */
-    passages_characters?: number;
-    /** When `true`, and used with a Watson Discovery News collection, duplicate results (based on the contents of the **title** field) are removed. Duplicate comparison is limited to the current query only; **offset** is not considered. This parameter is currently Beta functionality. */
-    deduplicate?: boolean;
-    /** When specified, duplicate results based on the field specified are removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not considered. This parameter is currently Beta functionality. */
-    deduplicate_field?: string;
-    /** A comma-separated list of collection IDs to be queried against. Required when querying multiple collections, invalid when performing a single collection query. */
-    collection_ids?: string;
-    /** When `true`, results are returned based on their similarity to the document IDs specified in the **similar.document_ids** parameter. */
-    similar?: boolean;
-    /** A comma-separated list of document IDs to find similar documents. **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied and reduce the scope. */
-    similar_document_ids?: string;
-    /** A comma-separated list of field names that are used as a basis for comparison to identify similar documents. If not specified, the entire document is used for comparison. */
-    similar_fields?: string;
-    /** Field which the returned results will be biased against. The specified field must be either a **date** or **number** format. When a **date** type field is specified returned results are biased towards field values closer to the current date. When a **number** type field is specified, returned results are biased towards higher field values. This parameter cannot be used in the same query as the **sort** parameter. */
-    bias?: string;
-    /** If `true`, queries are not stored in the Discovery **Logs** endpoint. */
-    logging_opt_out?: boolean;
     headers?: Object;
     return_response?: boolean;
   }
@@ -4816,50 +4858,6 @@ namespace DiscoveryV1 {
     count?: number;
     /** The number of evidence items to return for each result. The default is `0`. The maximum number of evidence items per query is 10,000. */
     evidence_count?: number;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `queryNotices` operation. */
-  export interface QueryNoticesParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
-    filter?: string;
-    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. Use a query search when you want to find the most relevant search results. You cannot use **natural_language_query** and **query** at the same time. */
-    query?: string;
-    /** A natural language query that returns relevant documents by utilizing training data and natural language understanding. You cannot use **natural_language_query** and **query** at the same time. */
-    natural_language_query?: string;
-    /** A passages query that returns the most relevant passages from the results. */
-    passages?: boolean;
-    /** An aggregation search that returns an exact answer by combining query search with filters. Useful for applications to build lists, tables, and time series. For a full list of possible aggregations, see the Query reference. */
-    aggregation?: string;
-    /** Number of results to return. The maximum for the **count** and **offset** values together in any one query is **10000**. */
-    count?: number;
-    /** A comma-separated list of the portion of the document hierarchy to return. */
-    return_fields?: string[];
-    /** The number of query results to skip at the beginning. For example, if the total number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the **count** and **offset** values together in any one query is **10000**. */
-    offset?: number;
-    /** A comma-separated list of fields in the document to sort on. You can optionally specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the default sort direction if no prefix is specified. */
-    sort?: string[];
-    /** When true, a highlight field is returned for each result which contains the fields which match the query with `<em></em>` tags around the matching query terms. */
-    highlight?: boolean;
-    /** A comma-separated list of fields that passages are drawn from. If this parameter not specified, then all top-level fields are included. */
-    passages_fields?: string[];
-    /** The maximum number of passages to return. The search returns fewer passages if the requested total is not found. */
-    passages_count?: number;
-    /** The approximate number of characters that any one passage will have. */
-    passages_characters?: number;
-    /** When specified, duplicate results based on the field specified are removed from the returned results. Duplicate comparison is limited to the current query only, **offset** is not considered. This parameter is currently Beta functionality. */
-    deduplicate_field?: string;
-    /** When `true`, results are returned based on their similarity to the document IDs specified in the **similar.document_ids** parameter. */
-    similar?: boolean;
-    /** A comma-separated list of document IDs to find similar documents. **Tip:** Include the **natural_language_query** parameter to expand the scope of the document similarity search with the natural language query. Other query parameters, such as **filter** and **query**, are subsequently applied and reduce the scope. */
-    similar_document_ids?: string[];
-    /** A comma-separated list of field names that are used as a basis for comparison to identify similar documents. If not specified, the entire document is used for comparison. */
-    similar_fields?: string[];
     headers?: Object;
     return_response?: boolean;
   }
@@ -4894,6 +4892,16 @@ namespace DiscoveryV1 {
     }
   }
 
+  /** Parameters for the `listTrainingData` operation. */
+  export interface ListTrainingDataParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
   /** Parameters for the `addTrainingData` operation. */
   export interface AddTrainingDataParams {
     /** The ID of the environment. */
@@ -4906,6 +4914,52 @@ namespace DiscoveryV1 {
     filter?: string;
     /** Array of training examples. */
     examples?: TrainingExample[];
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `deleteAllTrainingData` operation. */
+  export interface DeleteAllTrainingDataParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `getTrainingData` operation. */
+  export interface GetTrainingDataParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** The ID of the query used for training. */
+    query_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `deleteTrainingData` operation. */
+  export interface DeleteTrainingDataParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** The ID of the query used for training. */
+    query_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `listTrainingExamples` operation. */
+  export interface ListTrainingExamplesParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** The ID of the query used for training. */
+    query_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -4928,28 +4982,6 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `deleteAllTrainingData` operation. */
-  export interface DeleteAllTrainingDataParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `deleteTrainingData` operation. */
-  export interface DeleteTrainingDataParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** The ID of the query used for training. */
-    query_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
   /** Parameters for the `deleteTrainingExample` operation. */
   export interface DeleteTrainingExampleParams {
     /** The ID of the environment. */
@@ -4960,54 +4992,6 @@ namespace DiscoveryV1 {
     query_id: string;
     /** The ID of the document as it is indexed. */
     example_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `getTrainingData` operation. */
-  export interface GetTrainingDataParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** The ID of the query used for training. */
-    query_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `getTrainingExample` operation. */
-  export interface GetTrainingExampleParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** The ID of the query used for training. */
-    query_id: string;
-    /** The ID of the document as it is indexed. */
-    example_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `listTrainingData` operation. */
-  export interface ListTrainingDataParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `listTrainingExamples` operation. */
-  export interface ListTrainingExamplesParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The ID of the collection. */
-    collection_id: string;
-    /** The ID of the query used for training. */
-    query_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5026,6 +5010,20 @@ namespace DiscoveryV1 {
     cross_reference?: string;
     /** The relevance value for this example. */
     relevance?: number;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `getTrainingExample` operation. */
+  export interface GetTrainingExampleParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The ID of the collection. */
+    collection_id: string;
+    /** The ID of the query used for training. */
+    query_id: string;
+    /** The ID of the document as it is indexed. */
+    example_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5056,24 +5054,20 @@ namespace DiscoveryV1 {
     }
   }
 
-  /** Parameters for the `getMetricsEventRate` operation. */
-  export interface GetMetricsEventRateParams {
-    /** Metric is computed from data recorded after this timestamp; must be in `YYYY-MM-DDThh:mm:ssZ` format. */
-    start_time?: string;
-    /** Metric is computed from data recorded before this timestamp; must be in `YYYY-MM-DDThh:mm:ssZ` format. */
-    end_time?: string;
-    /** The type of result to consider when calculating the metric. */
-    result_type?: GetMetricsEventRateConstants.ResultType | string;
+  /** Parameters for the `queryLog` operation. */
+  export interface QueryLogParams {
+    /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
+    filter?: string;
+    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. */
+    query?: string;
+    /** Number of results to return. The maximum for the **count** and **offset** values together in any one query is **10000**. */
+    count?: number;
+    /** The number of query results to skip at the beginning. For example, if the total number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the **count** and **offset** values together in any one query is **10000**. */
+    offset?: number;
+    /** A comma-separated list of fields in the document to sort on. You can optionally specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the default sort direction if no prefix is specified. */
+    sort?: string[];
     headers?: Object;
     return_response?: boolean;
-  }
-
-  /** Constants for the `getMetricsEventRate` operation. */
-  export namespace GetMetricsEventRateConstants {
-    /** The type of result to consider when calculating the metric. */
-    export enum ResultType {
-      DOCUMENT = 'document',
-    }
   }
 
   /** Parameters for the `getMetricsQuery` operation. */
@@ -5136,6 +5130,26 @@ namespace DiscoveryV1 {
     }
   }
 
+  /** Parameters for the `getMetricsEventRate` operation. */
+  export interface GetMetricsEventRateParams {
+    /** Metric is computed from data recorded after this timestamp; must be in `YYYY-MM-DDThh:mm:ssZ` format. */
+    start_time?: string;
+    /** Metric is computed from data recorded before this timestamp; must be in `YYYY-MM-DDThh:mm:ssZ` format. */
+    end_time?: string;
+    /** The type of result to consider when calculating the metric. */
+    result_type?: GetMetricsEventRateConstants.ResultType | string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Constants for the `getMetricsEventRate` operation. */
+  export namespace GetMetricsEventRateConstants {
+    /** The type of result to consider when calculating the metric. */
+    export enum ResultType {
+      DOCUMENT = 'document',
+    }
+  }
+
   /** Parameters for the `getMetricsQueryTokenEvent` operation. */
   export interface GetMetricsQueryTokenEventParams {
     /** Number of results to return. The maximum for the **count** and **offset** values together in any one query is **10000**. */
@@ -5144,18 +5158,10 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `queryLog` operation. */
-  export interface QueryLogParams {
-    /** A cacheable query that excludes documents that don't mention the query content. Filter searches are better for metadata-type searches and for assessing the concepts in the data set. */
-    filter?: string;
-    /** A query search returns all documents in your data set with full enrichments and full text, but with the most relevant documents listed first. Use a query search when you want to find the most relevant search results. You cannot use **natural_language_query** and **query** at the same time. */
-    query?: string;
-    /** Number of results to return. The maximum for the **count** and **offset** values together in any one query is **10000**. */
-    count?: number;
-    /** The number of query results to skip at the beginning. For example, if the total number of results that are returned is 10 and the offset is 8, it returns the last two results. The maximum for the **count** and **offset** values together in any one query is **10000**. */
-    offset?: number;
-    /** A comma-separated list of fields in the document to sort on. You can optionally specify a sort direction by prefixing the field with `-` for descending or `+` for ascending. Ascending is the default sort direction if no prefix is specified. */
-    sort?: string[];
+  /** Parameters for the `listCredentials` operation. */
+  export interface ListCredentialsParams {
+    /** The ID of the environment. */
+    environment_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5168,6 +5174,8 @@ namespace DiscoveryV1 {
     source_type?: CreateCredentialsConstants.SourceType | string;
     /** Object containing details of the stored credentials. Obtain credentials for your source from the administrator of the source. */
     credential_details?: CredentialDetails;
+    /** The current status of this set of credentials. `connected` indicates that the credentials are available to use with the source configuration of a collection. `invalid` refers to the credentials (for example, the password provided has expired) and must be corrected before they can be used with a collection. */
+    status?: CreateCredentialsConstants.Status | string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5182,16 +5190,11 @@ namespace DiscoveryV1 {
       WEB_CRAWL = 'web_crawl',
       CLOUD_OBJECT_STORAGE = 'cloud_object_storage',
     }
-  }
-
-  /** Parameters for the `deleteCredentials` operation. */
-  export interface DeleteCredentialsParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The unique identifier for a set of source credentials. */
-    credential_id: string;
-    headers?: Object;
-    return_response?: boolean;
+    /** The current status of this set of credentials. `connected` indicates that the credentials are available to use with the source configuration of a collection. `invalid` refers to the credentials (for example, the password provided has expired) and must be corrected before they can be used with a collection. */
+    export enum Status {
+      CONNECTED = 'connected',
+      INVALID = 'invalid',
+    }
   }
 
   /** Parameters for the `getCredentials` operation. */
@@ -5200,14 +5203,6 @@ namespace DiscoveryV1 {
     environment_id: string;
     /** The unique identifier for a set of source credentials. */
     credential_id: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `listCredentials` operation. */
-  export interface ListCredentialsParams {
-    /** The ID of the environment. */
-    environment_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5222,6 +5217,8 @@ namespace DiscoveryV1 {
     source_type?: UpdateCredentialsConstants.SourceType | string;
     /** Object containing details of the stored credentials. Obtain credentials for your source from the administrator of the source. */
     credential_details?: CredentialDetails;
+    /** The current status of this set of credentials. `connected` indicates that the credentials are available to use with the source configuration of a collection. `invalid` refers to the credentials (for example, the password provided has expired) and must be corrected before they can be used with a collection. */
+    status?: UpdateCredentialsConstants.Status | string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5236,6 +5233,29 @@ namespace DiscoveryV1 {
       WEB_CRAWL = 'web_crawl',
       CLOUD_OBJECT_STORAGE = 'cloud_object_storage',
     }
+    /** The current status of this set of credentials. `connected` indicates that the credentials are available to use with the source configuration of a collection. `invalid` refers to the credentials (for example, the password provided has expired) and must be corrected before they can be used with a collection. */
+    export enum Status {
+      CONNECTED = 'connected',
+      INVALID = 'invalid',
+    }
+  }
+
+  /** Parameters for the `deleteCredentials` operation. */
+  export interface DeleteCredentialsParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    /** The unique identifier for a set of source credentials. */
+    credential_id: string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Parameters for the `listGateways` operation. */
+  export interface ListGatewaysParams {
+    /** The ID of the environment. */
+    environment_id: string;
+    headers?: Object;
+    return_response?: boolean;
   }
 
   /** Parameters for the `createGateway` operation. */
@@ -5244,16 +5264,6 @@ namespace DiscoveryV1 {
     environment_id: string;
     /** User-defined name. */
     name?: string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Parameters for the `deleteGateway` operation. */
-  export interface DeleteGatewayParams {
-    /** The ID of the environment. */
-    environment_id: string;
-    /** The requested gateway ID. */
-    gateway_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5268,10 +5278,12 @@ namespace DiscoveryV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `listGateways` operation. */
-  export interface ListGatewaysParams {
+  /** Parameters for the `deleteGateway` operation. */
+  export interface DeleteGatewayParams {
     /** The ID of the environment. */
     environment_id: string;
+    /** The requested gateway ID. */
+    gateway_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -5320,6 +5332,14 @@ namespace DiscoveryV1 {
     /** Summary of the disk usage statistics for this collection. */
     disk_usage?: CollectionDiskUsage;
     training_status?: TrainingStatus;
+    /** Object containing information about the crawl status of this collection. */
+    crawl_status?: CollectionCrawlStatus;
+    /** Object containing smart document understanding information for this collection. */
+    smart_document_understanding?: SduStatus;
+  }
+
+  /** Object containing information about the crawl status of this collection. */
+  export interface CollectionCrawlStatus {
     /** Object containing source crawl status information. */
     source_crawl?: SourceStatus;
   }
@@ -5372,6 +5392,8 @@ namespace DiscoveryV1 {
     segment?: SegmentSettings;
     /** Defines operations that can be used to transform the final output JSON into a normalized form. Operations are executed in the order that they appear in the array. */
     json_normalizations?: NormalizationOperation[];
+    /** When `true`, automatic text extraction from images (this includes images embedded in supported document formats, for example PDF, and suppported image formats, for example TIFF) is performed on documents uploaded to the collection. This field is supported on **Advanced** and higher plans only. **Lite** plans do not support image text recognition. */
+    image_text_recognition?: boolean;
   }
 
   /** An object defining the event being created. */
@@ -5384,7 +5406,7 @@ namespace DiscoveryV1 {
 
   /** Object containing details of the stored credentials. Obtain credentials for your source from the administrator of the source. */
   export interface CredentialDetails {
-    /** The authentication method for this credentials definition. The  **credential_type** specified must be supported by the **source_type**. The following combinations are possible: -  `"source_type": "box"` - valid `credential_type`s: `oauth2` -  `"source_type": "salesforce"` - valid `credential_type`s: `username_password` -  `"source_type": "sharepoint"` - valid `credential_type`s: `saml` with **source_version** of `online`, or `ntml_v1` with **source_version** of `2016` -  `"source_type": "web_crawl"` - valid `credential_type`s: `noauth` or `basic` -  "source_type": "cloud_object_storage"` - valid `credential_type`s: `aws4_hmac`. */
+    /** The authentication method for this credentials definition. The  **credential_type** specified must be supported by the **source_type**. The following combinations are possible: -  `"source_type": "box"` - valid `credential_type`s: `oauth2` -  `"source_type": "salesforce"` - valid `credential_type`s: `username_password` -  `"source_type": "sharepoint"` - valid `credential_type`s: `saml` with **source_version** of `online`, or `ntlm_v1` with **source_version** of `2016` -  `"source_type": "web_crawl"` - valid `credential_type`s: `noauth` or `basic` -  "source_type": "cloud_object_storage"` - valid `credential_type`s: `aws4_hmac`. */
     credential_type?: string;
     /** The **client_id** of the source that these credentials connect to. Only valid, and required, with a **credential_type** of `oauth2`. */
     client_id?: string;
@@ -5392,7 +5414,7 @@ namespace DiscoveryV1 {
     enterprise_id?: string;
     /** The **url** of the source that these credentials connect to. Only valid, and required, with a **credential_type** of `username_password`, `noauth`, and `basic`. */
     url?: string;
-    /** The **username** of the source that these credentials connect to. Only valid, and required, with a **credential_type** of `saml`, `username_password`, `basic`, or `ntml_v1`. */
+    /** The **username** of the source that these credentials connect to. Only valid, and required, with a **credential_type** of `saml`, `username_password`, `basic`, or `ntlm_v1`. */
     username?: string;
     /** The **organization_url** of the source that these credentials connect to. Only valid, and required, with a **credential_type** of `saml`. */
     organization_url?: string;
@@ -5406,19 +5428,19 @@ namespace DiscoveryV1 {
     private_key?: string;
     /** The **passphrase** of the source that these credentials connect to. Only valid, and required, with a **credential_type** of `oauth2`. This value is never returned and is only used when creating or modifying **credentials**. */
     passphrase?: string;
-    /** The **password** of the source that these credentials connect to. Only valid, and required, with **credential_type**s of `saml`, `username_password`, `basic`, or `ntml_v1`. **Note:** When used with a **source_type** of `salesforce`, the password consists of the Salesforce password and a valid Salesforce security token concatenated. This value is never returned and is only used when creating or modifying **credentials**. */
+    /** The **password** of the source that these credentials connect to. Only valid, and required, with **credential_type**s of `saml`, `username_password`, `basic`, or `ntlm_v1`. **Note:** When used with a **source_type** of `salesforce`, the password consists of the Salesforce password and a valid Salesforce security token concatenated. This value is never returned and is only used when creating or modifying **credentials**. */
     password?: string;
-    /** The ID of the **gateway** to be connected through (when connecting to intranet sites). Only valid with a **credential_type** of `noauth`, `basic`, or `ntml_v1`. Gateways are created using the `/v1/environments/{environment_id}/gateways` methods. */
+    /** The ID of the **gateway** to be connected through (when connecting to intranet sites). Only valid with a **credential_type** of `noauth`, `basic`, or `ntlm_v1`. Gateways are created using the `/v1/environments/{environment_id}/gateways` methods. */
     gateway_id?: string;
     /** The type of Sharepoint repository to connect to. Only valid, and required, with a **source_type** of `sharepoint`. */
     source_version?: string;
-    /** SharePoint OnPrem WebApplication URL. Only valid, and required, with a **source_version** of `2016`. */
+    /** SharePoint OnPrem WebApplication URL. Only valid, and required, with a **source_version** of `2016`. If a port is not supplied, the default to port `80` for http and port `443` for https connections are used. */
     web_application_url?: string;
     /** The domain used to log in to your OnPrem SharePoint account. Only valid, and required, with a **source_version** of `2016`. */
     domain?: string;
     /** The endpoint associated with the cloud object store that your are connecting to. Only valid, and required, with a **credential_type** of `aws4_hmac`. */
     endpoint?: string;
-    /** The access key ID associated with the cloud object store. Only valid, and required, with a **credential_type** of `aws4_hmac`. For more infomation, see the [cloud object store documentation](https://cloud.ibm.com/docs/services/cloud-object-storage?topic=cloud-object-storage-using-hmac-credentials#using-hmac-credentials). */
+    /** The access key ID associated with the cloud object store. Only valid, and required, with a **credential_type** of `aws4_hmac`. This value is never returned and is only used when creating or modifying **credentials**. For more infomation, see the [cloud object store documentation](https://cloud.ibm.com/docs/services/cloud-object-storage?topic=cloud-object-storage-using-hmac-credentials#using-hmac-credentials). */
     access_key_id?: string;
     /** The secret access key associated with the cloud object store. Only valid, and required, with a **credential_type** of `aws4_hmac`. This value is never returned and is only used when creating or modifying **credentials**. For more infomation, see the [cloud object store documentation](https://cloud.ibm.com/docs/services/cloud-object-storage?topic=cloud-object-storage-using-hmac-credentials#using-hmac-credentials). */
     secret_access_key?: string;
@@ -5432,6 +5454,8 @@ namespace DiscoveryV1 {
     source_type?: string;
     /** Object containing details of the stored credentials. Obtain credentials for your source from the administrator of the source. */
     credential_details?: CredentialDetails;
+    /** The current status of this set of credentials. `connected` indicates that the credentials are available to use with the source configuration of a collection. `invalid` refers to the credentials (for example, the password provided has expired) and must be corrected before they can be used with a collection. */
+    status?: string;
   }
 
   /** CredentialsList. */
@@ -5554,11 +5578,11 @@ namespace DiscoveryV1 {
     enrichment_name: string;
     /** If true, then most errors generated during the enrichment process will be treated as warnings and will not cause the document to fail processing. */
     ignore_downstream_errors?: boolean;
-    /** An object representing the configuration options to use for the `elements` enrichment. */
+    /** Options which are specific to a particular enrichment. */
     options?: EnrichmentOptions;
   }
 
-  /** An object representing the configuration options to use for the `elements` enrichment. */
+  /** Options which are specific to a particular enrichment. */
   export interface EnrichmentOptions {
     features?: NluEnrichmentFeatures;
     /** ISO 639-1 code indicating the language to use for the analysis. This code overrides the automatic language detection performed by the service. Valid codes are `ar` (Arabic), `en` (English), `fr` (French), `de` (German), `it` (Italian), `pt` (Portuguese), `ru` (Russian), `es` (Spanish), and `sv` (Swedish). **Note:** Not all features support all languages, automatic detection is recommended. */
@@ -5649,7 +5673,7 @@ namespace DiscoveryV1 {
 
   /** FontSetting. */
   export interface FontSetting {
-    /** The HTML heading level that any content with the matching font will be converted to. */
+    /** The HTML heading level that any content with the matching font is converted to. */
     level?: number;
     /** The minimum size of the font to match. */
     min_size?: number;
@@ -5869,7 +5893,7 @@ namespace DiscoveryV1 {
 
   /** An object that indicates the Categories enrichment will be applied to the specified field. */
   export interface NluEnrichmentCategories {
-    /** NluEnrichmentCategories accepts additional properties. */
+    /** NluEnrichmentCategories accepts additional properties of type any. */
     [propName: string]: any;
   }
 
@@ -5997,7 +6021,7 @@ namespace DiscoveryV1 {
     heading?: PdfHeadingDetection;
   }
 
-  /** An aggregation produced by the Discovery service to analyze the input provided. */
+  /** An aggregation produced by  Discovery to analyze the input provided. */
   export interface QueryAggregation {
     /** The type of aggregation command used. For example: term, filter, max, min, etc. */
     type?: string;
@@ -6005,7 +6029,7 @@ namespace DiscoveryV1 {
     results?: AggregationResult[];
     /** Number of matching results. */
     matching_results?: number;
-    /** Aggregations returned by the Discovery service. */
+    /** Aggregations returned by Discovery. */
     aggregations?: QueryAggregation[];
   }
 
@@ -6109,8 +6133,8 @@ namespace DiscoveryV1 {
     sha1?: string;
     /** Array of notices for the document. */
     notices?: Notice[];
-    /** QueryNoticesResult accepts additional properties. */
-    [propName: string]: any;
+    /** QueryNoticesResult accepts additional properties of type Object. */
+    [propName: string]: Object;
   }
 
   /** QueryPassages. */
@@ -6201,8 +6225,8 @@ namespace DiscoveryV1 {
     result_metadata?: QueryResultMetadata;
     /** Automatically extracted result title. */
     title?: string;
-    /** QueryResult accepts additional properties. */
-    [propName: string]: any;
+    /** QueryResult accepts additional properties of type Object. */
+    [propName: string]: Object;
   }
 
   /** Metadata of a query result. */
@@ -6217,6 +6241,28 @@ namespace DiscoveryV1 {
   export interface RetrievalDetails {
     /** Indentifies the document retrieval strategy used for this query. `relevancy_training` indicates that the results were returned using a relevancy trained model. `continuous_relevancy_training` indicates that the results were returned using the continuous relevancy training model created by result feedback analysis. `untrained` means the results were returned using the standard untrained model. **Note**: In the event of trained collections being queried, but the trained model is not used to return results, the **document_retrieval_strategy** will be listed as `untrained`. */
     document_retrieval_strategy?: string;
+  }
+
+  /** Object containing smart document understanding information for this collection. */
+  export interface SduStatus {
+    /** When `true`, smart document understanding conversion is enabled for this collection. All collections created with a version date after `2019-04-30` have smart document understanding enabled. If `false`, documents added to the collection are converted using the **conversion** settings specified in the configuration associated with the collection. */
+    enabled?: boolean;
+    /** The total number of pages annotated using smart document understanding in this collection. */
+    total_annotated_pages?: number;
+    /** The current number of pages that can be used for training smart document understanding. The `total_pages` number is calculated as the total number of pages identified from the documents listed in the **total_documents** field. */
+    total_pages?: number;
+    /** The total number of documents in this collection that can be used to train smart document understanding. For **lite** plan collections, the maximum is the first 20 uploaded documents (not including HTML or JSON documents). For other plans, the maximum is the first 40 uploaded documents (not including HTML or JSON documents). When the maximum is reached, additional documents uploaded to the collection are not considered for training smart document understanding. */
+    total_documents?: number;
+    /** Information about custom smart document understanding fields that exist in this collection. */
+    custom_fields?: SduStatusCustomFields;
+  }
+
+  /** Information about custom smart document understanding fields that exist in this collection. */
+  export interface SduStatusCustomFields {
+    /** The number of custom fields defined for this collection. */
+    defined?: number;
+    /** The maximum number of custom fields that are allowed in this collection. */
+    maximum_allowed?: number;
   }
 
   /** Information about the Continuous Relevancy Training for this environment. */
@@ -6235,8 +6281,10 @@ namespace DiscoveryV1 {
   export interface SegmentSettings {
     /** Enables/disables the Document Segmentation feature. */
     enabled?: boolean;
-    /** Defines the heading level that splits into document segments. Valid values are h1, h2, h3, h4, h5, h6. The content of the header field that the segmentation splits at is used as the **title** field for that segmented result. */
+    /** Defines the heading level that splits into document segments. Valid values are h1, h2, h3, h4, h5, h6. The content of the header field that the segmentation splits at is used as the **title** field for that segmented result. Only valid if used with a collection that has **enabled** set to `false` in the **smart_document_understanding** object. */
     selector_tags?: string[];
+    /** Defines the annotated smart document understanding fields that the document is split on. The content of the annotated field that the segmentation splits at is used as the **title** field for that segmented result. For example, if the field `sub-title` is specified, when a document is uploaded each time the smart documement understanding conversion encounters a field of type `sub-title` the document is split at that point and the content of the field used as the title of the remaining content. Thnis split is performed for all instances of the listed fields in the uploaded document. Only valid if used with a collection that has **enabled** set to `true` in the **smart_document_understanding** object. */
+    annotated_fields?: string[];
   }
 
   /** Object containing source parameters for the configuration. */
@@ -6317,6 +6365,8 @@ namespace DiscoveryV1 {
     request_timeout?: number;
     /** When `true`, the crawler will ignore any `robots.txt` encountered by the crawler. This should only ever be done when crawling a web site the user owns. This must be be set to `true` when a **gateway_id** is specied in the **credentials**. */
     override_robots_txt?: boolean;
+    /** Array of URL's to be excluded while crawling. The crawler will not follow links which contains this string. For example, listing `https://ibm.com/watson` also excludes `https://ibm.com/watson/discovery`. */
+    blacklist?: string[];
   }
 
   /** Object containing the schedule information for the source. */
@@ -6325,16 +6375,16 @@ namespace DiscoveryV1 {
     enabled?: boolean;
     /** The time zone to base source crawl times on. Possible values correspond to the IANA (Internet Assigned Numbers Authority) time zones list. */
     time_zone?: string;
-    /** The crawl schedule in the specified **time_zone**. -  `daily`: Runs every day between 00:00 and 06:00. -  `weekly`: Runs every week on Sunday between 00:00 and 06:00. -  `monthly`: Runs the on the first Sunday of every month between 00:00 and 06:00. */
+    /** The crawl schedule in the specified **time_zone**. -  `five_minutes`: Runs every five minutes. -  `hourly`: Runs every hour. -  `daily`: Runs every day between 00:00 and 06:00. -  `weekly`: Runs every week on Sunday between 00:00 and 06:00. -  `monthly`: Runs the on the first Sunday of every month between 00:00 and 06:00. */
     frequency?: string;
   }
 
   /** Object containing source crawl status information. */
   export interface SourceStatus {
-    /** The current status of the source crawl for this collection. This field returns `not_configured` if the default configuration for this source does not have a **source** object defined. -  `running` indicates that a crawl to fetch more documents is in progress. -  `complete` indicates that the crawl has completed with no errors. -  `queued` indicates that the crawl has been paused by the system and will automatically restart when possible. */
+    /** The current status of the source crawl for this collection. This field returns `not_configured` if the default configuration for this source does not have a **source** object defined. -  `running` indicates that a crawl to fetch more documents is in progress. -  `complete` indicates that the crawl has completed with no errors. -  `queued` indicates that the crawl has been paused by the system and will automatically restart when possible. -  `unknown` indicates that an unidentified error has occured in the service. */
     status?: string;
-    /** Date in UTC format indicating when the last crawl was attempted. If `null`, no crawl was completed. */
-    last_updated?: string;
+    /** Date in `RFC 3339` format indicating the time of the next crawl attempt. */
+    next_crawl?: string;
   }
 
   /** Term. */

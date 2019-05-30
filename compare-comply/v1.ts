@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 IBM All Rights Reserved.
+ * Copyright 2019 IBM All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 import { AxiosResponse } from 'axios';
 import * as extend from 'extend';
-import { BaseService, getMissingParams } from 'ibm-cloud-sdk-core';
-import { FileObject } from 'ibm-cloud-sdk-core';
+import { BaseService, FileObject, getMissingParams } from 'ibm-cloud-sdk-core';
 import { getSdkHeaders } from '../lib/common';
 
 /**
@@ -39,6 +38,8 @@ class CompareComplyV1 extends BaseService {
    * @param {string} [options.iam_access_token] - An IAM access token fully managed by the application. Responsibility falls on the application to refresh the token, either before it expires or reactively upon receiving a 401 from the service, as any requests made with an expired token will fail.
    * @param {string} [options.iam_apikey] - An API key that can be used to request IAM tokens. If this API key is provided, the SDK will manage the token and handle the refreshing.
    * @param {string} [options.iam_url] - An optional URL for the IAM service API. Defaults to 'https://iam.cloud.ibm.com/identity/token'.
+   * @param {string} [options.iam_client_id] - client id (username) for request to iam service
+   * @param {string} [options.iam_client_secret] - client secret (password) for request to iam service
    * @param {boolean} [options.use_unauthenticated] - Set to `true` to avoid including an authorization header. This option may be useful for requests that are proxied.
    * @param {Object} [options.headers] - Default headers that shall be included with every request to the service.
    * @param {boolean} [options.headers.X-Watson-Learning-Opt-Out] - Set to `true` to opt-out of data collection. By default, all IBM Watson services log requests and their results. Logging is done only to improve the services for future users. The logged data is not shared or made public. If you are concerned with protecting the privacy of users' personal information or otherwise do not want your requests to be logged, you can opt out of logging.
@@ -402,126 +403,6 @@ class CompareComplyV1 extends BaseService {
   };
 
   /**
-   * Delete a specified feedback entry.
-   *
-   * Deletes a feedback entry with a specified `feedback_id`.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.feedback_id - A string that specifies the feedback entry to be deleted from the document.
-   * @param {string} [params.model] - The analysis model to be used by the service. For the **Element classification**
-   * and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default
-   * is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing
-   * requests.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public deleteFeedback(params: CompareComplyV1.DeleteFeedbackParams, callback?: CompareComplyV1.Callback<CompareComplyV1.FeedbackDeleted>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['feedback_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.deleteFeedback(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
- 
-    const query = {
-      'model': _params.model
-    };
-
-    const path = {
-      'feedback_id': _params.feedback_id
-    };
-
-    const sdkHeaders = getSdkHeaders('compare-comply', 'v1', 'deleteFeedback');
-
-    const parameters = {
-      options: {
-        url: '/v1/feedback/{feedback_id}',
-        method: 'DELETE',
-        qs: query,
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List a specified feedback entry.
-   *
-   * Lists a feedback entry with a specified `feedback_id`.
-   *
-   * @param {Object} params - The parameters to send to the service.
-   * @param {string} params.feedback_id - A string that specifies the feedback entry to be included in the output.
-   * @param {string} [params.model] - The analysis model to be used by the service. For the **Element classification**
-   * and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default
-   * is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing
-   * requests.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public getFeedback(params: CompareComplyV1.GetFeedbackParams, callback?: CompareComplyV1.Callback<CompareComplyV1.GetFeedback>): Promise<any> | void {
-    const _params = extend({}, params);
-    const _callback = callback;
-    const requiredParams = ['feedback_id'];
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.getFeedback(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const missingParams = getMissingParams(_params, requiredParams);
-    if (missingParams) {
-      return _callback(missingParams);
-    }
- 
-    const query = {
-      'model': _params.model
-    };
-
-    const path = {
-      'feedback_id': _params.feedback_id
-    };
-
-    const sdkHeaders = getSdkHeaders('compare-comply', 'v1', 'getFeedback');
-
-    const parameters = {
-      options: {
-        url: '/v1/feedback/{feedback_id}',
-        method: 'GET',
-        qs: query,
-        path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
    * List the feedback in a document.
    *
    * Lists the feedback in a document.
@@ -619,6 +500,126 @@ class CompareComplyV1 extends BaseService {
     return this.createRequest(parameters, _callback);
   };
 
+  /**
+   * Get a specified feedback entry.
+   *
+   * Gets a feedback entry with a specified `feedback_id`.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.feedback_id - A string that specifies the feedback entry to be included in the output.
+   * @param {string} [params.model] - The analysis model to be used by the service. For the **Element classification**
+   * and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default
+   * is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing
+   * requests.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public getFeedback(params: CompareComplyV1.GetFeedbackParams, callback?: CompareComplyV1.Callback<CompareComplyV1.GetFeedback>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['feedback_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.getFeedback(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+ 
+    const query = {
+      'model': _params.model
+    };
+
+    const path = {
+      'feedback_id': _params.feedback_id
+    };
+
+    const sdkHeaders = getSdkHeaders('compare-comply', 'v1', 'getFeedback');
+
+    const parameters = {
+      options: {
+        url: '/v1/feedback/{feedback_id}',
+        method: 'GET',
+        qs: query,
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
+   * Delete a specified feedback entry.
+   *
+   * Deletes a feedback entry with a specified `feedback_id`.
+   *
+   * @param {Object} params - The parameters to send to the service.
+   * @param {string} params.feedback_id - A string that specifies the feedback entry to be deleted from the document.
+   * @param {string} [params.model] - The analysis model to be used by the service. For the **Element classification**
+   * and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default
+   * is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing
+   * requests.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public deleteFeedback(params: CompareComplyV1.DeleteFeedbackParams, callback?: CompareComplyV1.Callback<CompareComplyV1.FeedbackDeleted>): Promise<any> | void {
+    const _params = extend({}, params);
+    const _callback = callback;
+    const requiredParams = ['feedback_id'];
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.deleteFeedback(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const missingParams = getMissingParams(_params, requiredParams);
+    if (missingParams) {
+      return _callback(missingParams);
+    }
+ 
+    const query = {
+      'model': _params.model
+    };
+
+    const path = {
+      'feedback_id': _params.feedback_id
+    };
+
+    const sdkHeaders = getSdkHeaders('compare-comply', 'v1', 'deleteFeedback');
+
+    const parameters = {
+      options: {
+        url: '/v1/feedback/{feedback_id}',
+        method: 'DELETE',
+        qs: query,
+        path,
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
   /*************************
    * batches
    ************************/
@@ -627,10 +628,11 @@ class CompareComplyV1 extends BaseService {
    * Submit a batch-processing request.
    *
    * Run Compare and Comply methods over a collection of input documents.
+   *
    * **Important:** Batch processing requires the use of the [IBM Cloud Object Storage
-   * service](https://cloud.ibm.com/docs/services/cloud-object-storage/about-cos.html#about-ibm-cloud-object-storage).
+   * service](https://cloud.ibm.com/docs/services/cloud-object-storage?topic=cloud-object-storage-about#about-ibm-cloud-object-storage).
    * The use of IBM Cloud Object Storage with Compare and Comply is discussed at [Using batch
-   * processing](https://cloud.ibm.com/docs/services/compare-comply/batching.html#before-you-batch).
+   * processing](https://cloud.ibm.com/docs/services/compare-comply?topic=compare-comply-batching#before-you-batch).
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {string} params._function - The Compare and Comply method to run across the submitted input documents.
@@ -714,6 +716,45 @@ class CompareComplyV1 extends BaseService {
   };
 
   /**
+   * List submitted batch-processing jobs.
+   *
+   * Lists batch-processing jobs submitted by users.
+   *
+   * @param {Object} [params] - The parameters to send to the service.
+   * @param {Object} [params.headers] - Custom request headers
+   * @param {Function} [callback] - The callback that handles the response.
+   * @returns {Promise<any>|void}
+   */
+  public listBatches(params?: CompareComplyV1.ListBatchesParams, callback?: CompareComplyV1.Callback<CompareComplyV1.Batches>): Promise<any> | void {
+    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
+    const _callback = (typeof params === 'function' && !callback) ? params : callback;
+
+    if (!_callback) {
+      return new Promise((resolve, reject) => {
+        this.listBatches(params, (err, bod, res) => {
+          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
+        });
+      });
+    }
+
+    const sdkHeaders = getSdkHeaders('compare-comply', 'v1', 'listBatches');
+
+    const parameters = {
+      options: {
+        url: '/v1/batches',
+        method: 'GET',
+      },
+      defaultOptions: extend(true, {}, this._options, {
+        headers: extend(true, sdkHeaders, {
+          'Accept': 'application/json',
+        }, _params.headers),
+      }),
+    };
+
+    return this.createRequest(parameters, _callback);
+  };
+
+  /**
    * Get information about a specific batch-processing job.
    *
    * Gets information about a batch-processing job with a specified ID.
@@ -753,45 +794,6 @@ class CompareComplyV1 extends BaseService {
         url: '/v1/batches/{batch_id}',
         method: 'GET',
         path,
-      },
-      defaultOptions: extend(true, {}, this._options, {
-        headers: extend(true, sdkHeaders, {
-          'Accept': 'application/json',
-        }, _params.headers),
-      }),
-    };
-
-    return this.createRequest(parameters, _callback);
-  };
-
-  /**
-   * List submitted batch-processing jobs.
-   *
-   * Lists batch-processing jobs submitted by users.
-   *
-   * @param {Object} [params] - The parameters to send to the service.
-   * @param {Object} [params.headers] - Custom request headers
-   * @param {Function} [callback] - The callback that handles the response.
-   * @returns {Promise<any>|void}
-   */
-  public listBatches(params?: CompareComplyV1.ListBatchesParams, callback?: CompareComplyV1.Callback<CompareComplyV1.Batches>): Promise<any> | void {
-    const _params = (typeof params === 'function' && !callback) ? {} : extend({}, params);
-    const _callback = (typeof params === 'function' && !callback) ? params : callback;
-
-    if (!_callback) {
-      return new Promise((resolve, reject) => {
-        this.listBatches(params, (err, bod, res) => {
-          err ? reject(err) : _params.return_response ? resolve(res) : resolve(bod);
-        });
-      });
-    }
-
-    const sdkHeaders = getSdkHeaders('compare-comply', 'v1', 'listBatches');
-
-    const parameters = {
-      options: {
-        url: '/v1/batches',
-        method: 'GET',
       },
       defaultOptions: extend(true, {}, this._options, {
         headers: extend(true, sdkHeaders, {
@@ -884,6 +886,8 @@ namespace CompareComplyV1 {
     iam_access_token?: string;
     iam_apikey?: string;
     iam_url?: string;
+    iam_client_id?: string;
+    iam_client_secret?: string;
     username?: string;
     password?: string;
     use_unauthenticated?: boolean;
@@ -1065,44 +1069,6 @@ namespace CompareComplyV1 {
     return_response?: boolean;
   }
 
-  /** Parameters for the `deleteFeedback` operation. */
-  export interface DeleteFeedbackParams {
-    /** A string that specifies the feedback entry to be deleted from the document. */
-    feedback_id: string;
-    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
-    model?: DeleteFeedbackConstants.Model | string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Constants for the `deleteFeedback` operation. */
-  export namespace DeleteFeedbackConstants {
-    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
-    export enum Model {
-      CONTRACTS = 'contracts',
-      TABLES = 'tables',
-    }
-  }
-
-  /** Parameters for the `getFeedback` operation. */
-  export interface GetFeedbackParams {
-    /** A string that specifies the feedback entry to be included in the output. */
-    feedback_id: string;
-    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
-    model?: GetFeedbackConstants.Model | string;
-    headers?: Object;
-    return_response?: boolean;
-  }
-
-  /** Constants for the `getFeedback` operation. */
-  export namespace GetFeedbackConstants {
-    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
-    export enum Model {
-      CONTRACTS = 'contracts',
-      TABLES = 'tables',
-    }
-  }
-
   /** Parameters for the `listFeedback` operation. */
   export interface ListFeedbackParams {
     /** An optional string that filters the output to include only feedback with the specified feedback type. The only permitted value is `element_classification`. */
@@ -1139,6 +1105,44 @@ namespace CompareComplyV1 {
     include_total?: boolean;
     headers?: Object;
     return_response?: boolean;
+  }
+
+  /** Parameters for the `getFeedback` operation. */
+  export interface GetFeedbackParams {
+    /** A string that specifies the feedback entry to be included in the output. */
+    feedback_id: string;
+    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
+    model?: GetFeedbackConstants.Model | string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Constants for the `getFeedback` operation. */
+  export namespace GetFeedbackConstants {
+    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
+    export enum Model {
+      CONTRACTS = 'contracts',
+      TABLES = 'tables',
+    }
+  }
+
+  /** Parameters for the `deleteFeedback` operation. */
+  export interface DeleteFeedbackParams {
+    /** A string that specifies the feedback entry to be deleted from the document. */
+    feedback_id: string;
+    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
+    model?: DeleteFeedbackConstants.Model | string;
+    headers?: Object;
+    return_response?: boolean;
+  }
+
+  /** Constants for the `deleteFeedback` operation. */
+  export namespace DeleteFeedbackConstants {
+    /** The analysis model to be used by the service. For the **Element classification** and **Compare two documents** methods, the default is `contracts`. For the **Extract tables** method, the default is `tables`. These defaults apply to the standalone methods as well as to the methods' use in batch-processing requests. */
+    export enum Model {
+      CONTRACTS = 'contracts',
+      TABLES = 'tables',
+    }
   }
 
   /** Parameters for the `createBatch` operation. */
@@ -1178,16 +1182,16 @@ namespace CompareComplyV1 {
     }
   }
 
-  /** Parameters for the `getBatch` operation. */
-  export interface GetBatchParams {
-    /** The ID of the batch-processing job whose information you want to retrieve. */
-    batch_id: string;
+  /** Parameters for the `listBatches` operation. */
+  export interface ListBatchesParams {
     headers?: Object;
     return_response?: boolean;
   }
 
-  /** Parameters for the `listBatches` operation. */
-  export interface ListBatchesParams {
+  /** Parameters for the `getBatch` operation. */
+  export interface GetBatchParams {
+    /** The ID of the batch-processing job whose information you want to retrieve. */
+    batch_id: string;
     headers?: Object;
     return_response?: boolean;
   }
@@ -1276,7 +1280,7 @@ namespace CompareComplyV1 {
     updated?: string;
   }
 
-  /** The results of a successful `GET /v1/batches` request. */
+  /** The results of a successful **List Batches** request. */
   export interface Batches {
     /** A list of the status of all batch requests. */
     batches?: BatchStatus[];
@@ -1537,7 +1541,7 @@ namespace CompareComplyV1 {
     updated_labels: UpdatedLabelsIn;
   }
 
-  /** Information returned from the `POST /v1/feedback` method. */
+  /** Information returned from the **Add Feedback** method. */
   export interface FeedbackDataOutput {
     /** A string identifying the user adding the feedback. The only permitted value is `element_classification`. */
     feedback_type?: string;
@@ -1567,7 +1571,7 @@ namespace CompareComplyV1 {
     message?: string;
   }
 
-  /** The results of a successful `GET /v1/feedback` request. */
+  /** The results of a successful **List Feedback** request for all feedback. */
   export interface FeedbackList {
     /** A list of all feedback for the document. */
     feedback?: GetFeedback[];
@@ -1583,11 +1587,11 @@ namespace CompareComplyV1 {
     comment?: string;
     /** Timestamp listing the creation time of the feedback submission. */
     created?: string;
-    /** Information returned from the `POST /v1/feedback` method. */
+    /** Information returned from the **Add Feedback** method. */
     feedback_data?: FeedbackDataOutput;
   }
 
-  /** The results of a single feedback query. */
+  /** The results of a successful **Get Feedback** request for a single feedback entry. */
   export interface GetFeedback {
     /** A string uniquely identifying the feedback entry. */
     feedback_id?: string;
@@ -1595,7 +1599,7 @@ namespace CompareComplyV1 {
     created?: string;
     /** A string containing the user's comment about the feedback entry. */
     comment?: string;
-    /** Information returned from the `POST /v1/feedback` method. */
+    /** Information returned from the **Add Feedback** method. */
     feedback_data?: FeedbackDataOutput;
   }
 

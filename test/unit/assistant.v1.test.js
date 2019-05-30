@@ -1,19 +1,37 @@
+/**
+ * Copyright 2019 IBM All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use strict';
 
 const helper = require('ibm-cloud-sdk-core');
 const AssistantV1 = require('../../assistant/v1');
 const utils = require('../resources/unitTestUtils');
 
-const getOptions = utils.getOptions;
-const checkUrlAndMethod = utils.checkUrlAndMethod;
-const checkCallback = utils.checkCallback;
-const checkMediaHeaders = utils.checkMediaHeaders;
-const missingParamsSuccess = utils.missingParamsSuccess;
-const missingParamsError = utils.missingParamsError;
-const checkForEmptyObject = utils.checkForEmptyObject;
-const checkRequiredParamsHandling = utils.checkRequiredParamsHandling;
+const {
+  getOptions,
+  checkUrlAndMethod,
+  checkCallback,
+  checkMediaHeaders,
+  missingParamsSuccess,
+  expectToBePromise,
+  missingParamsError,
+  checkForEmptyObject,
+  checkRequiredParamsHandling,
+  checkDefaultSuccessArgs,
+} = utils;
 
-const checkDefaultSuccessArgs = utils.checkDefaultSuccessArgs;
 const noop = () => {};
 
 const service = {
@@ -62,7 +80,7 @@ describe('message', () => {
       };
 
       // invoke method
-      assistant.message(params);
+      assistant.message(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -97,8 +115,23 @@ describe('message', () => {
         },
       };
 
-      assistant.message(params);
+      assistant.message(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const messagePromise = assistant.message(params);
+      expectToBePromise(messagePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -122,6 +155,99 @@ describe('message', () => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      const messagePromise = assistant.message();
+      expectToBePromise(messagePromise);
+
+      messagePromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('listWorkspaces', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const page_limit = 'fake_page_limit';
+      const include_count = 'fake_include_count';
+      const sort = 'fake_sort';
+      const cursor = 'fake_cursor';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        page_limit,
+        include_count,
+        sort,
+        cursor,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.listWorkspaces(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['page_limit']).toEqual(page_limit);
+      expect(options.qs['include_count']).toEqual(include_count);
+      expect(options.qs['sort']).toEqual(sort);
+      expect(options.qs['cursor']).toEqual(cursor);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.listWorkspaces(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const params = {};
+
+      // invoke method
+      const listWorkspacesPromise = assistant.listWorkspaces(params);
+      expectToBePromise(listWorkspacesPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+    test('should not have any problems when no parameters are passed in', () => {
+      // invoke the method
+      assistant.listWorkspaces({}, noop);
+      checkDefaultSuccessArgs(createRequestMock);
+    });
+
+    test('should use argument as callback function if only one is passed in', () => {
+      // invoke the method
+      assistant.listWorkspaces(noop);
+      checkDefaultSuccessArgs(createRequestMock);
     });
   });
 });
@@ -157,7 +283,7 @@ describe('createWorkspace', () => {
       };
 
       // invoke method
-      assistant.createWorkspace(params);
+      assistant.createWorkspace(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -192,12 +318,24 @@ describe('createWorkspace', () => {
         },
       };
 
-      assistant.createWorkspace(params);
+      assistant.createWorkspace(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const params = {};
+
+      // invoke method
+      const createWorkspacePromise = assistant.createWorkspace(params);
+      expectToBePromise(createWorkspacePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
     test('should not have any problems when no parameters are passed in', () => {
       // invoke the method
-      assistant.createWorkspace();
+      assistant.createWorkspace({}, noop);
       checkDefaultSuccessArgs(createRequestMock);
     });
 
@@ -205,76 +343,6 @@ describe('createWorkspace', () => {
       // invoke the method
       assistant.createWorkspace(noop);
       checkDefaultSuccessArgs(createRequestMock);
-    });
-  });
-});
-
-describe('deleteWorkspace', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const params = {
-        workspace_id,
-      };
-
-      // invoke method
-      assistant.deleteWorkspace(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}', 'DELETE');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.deleteWorkspace(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteWorkspace(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
-      // required parameters for this method
-      const requiredParams = ['workspace_id'];
-
-      assistant.deleteWorkspace({}, err => {
-        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
-        done();
-      });
     });
   });
 });
@@ -298,7 +366,7 @@ describe('getWorkspace', () => {
       };
 
       // invoke method
-      assistant.getWorkspace(params);
+      assistant.getWorkspace(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -329,8 +397,23 @@ describe('getWorkspace', () => {
         },
       };
 
-      assistant.getWorkspace(params);
+      assistant.getWorkspace(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const getWorkspacePromise = assistant.getWorkspace(params);
+      expectToBePromise(getWorkspacePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -355,73 +438,18 @@ describe('getWorkspace', () => {
         done();
       });
     });
-  });
-});
 
-describe('listWorkspaces', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const page_limit = 'fake_page_limit';
-      const include_count = 'fake_include_count';
-      const sort = 'fake_sort';
-      const cursor = 'fake_cursor';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        page_limit,
-        include_count,
-        sort,
-        cursor,
-        include_audit,
-      };
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
 
-      // invoke method
-      assistant.listWorkspaces(params);
+      const getWorkspacePromise = assistant.getWorkspace();
+      expectToBePromise(getWorkspacePromise);
 
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces', 'GET');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['page_limit']).toEqual(page_limit);
-      expect(options.qs['include_count']).toEqual(include_count);
-      expect(options.qs['sort']).toEqual(sort);
-      expect(options.qs['cursor']).toEqual(cursor);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.listWorkspaces(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-    test('should not have any problems when no parameters are passed in', () => {
-      // invoke the method
-      assistant.listWorkspaces();
-      checkDefaultSuccessArgs(createRequestMock);
-    });
-
-    test('should use argument as callback function if only one is passed in', () => {
-      // invoke the method
-      assistant.listWorkspaces(noop);
-      checkDefaultSuccessArgs(createRequestMock);
+      getWorkspacePromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
     });
   });
 });
@@ -461,7 +489,7 @@ describe('updateWorkspace', () => {
       };
 
       // invoke method
-      assistant.updateWorkspace(params);
+      assistant.updateWorkspace(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -500,8 +528,23 @@ describe('updateWorkspace', () => {
         },
       };
 
-      assistant.updateWorkspace(params);
+      assistant.updateWorkspace(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const updateWorkspacePromise = assistant.updateWorkspace(params);
+      expectToBePromise(updateWorkspacePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -526,83 +569,15 @@ describe('updateWorkspace', () => {
         done();
       });
     });
-  });
-});
 
-describe('createIntent', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const description = 'fake_description';
-      const examples = 'fake_examples';
-      const params = {
-        workspace_id,
-        intent,
-        description,
-        examples,
-      };
-
-      // invoke method
-      assistant.createIntent(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents', 'POST');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = 'application/json';
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.body['intent']).toEqual(intent);
-      expect(options.body['description']).toEqual(description);
-      expect(options.body['examples']).toEqual(examples);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        intent,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.createIntent(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.createIntent(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'intent'];
+      const requiredParams = ['workspace_id'];
 
-      assistant.createIntent({}, err => {
+      const updateWorkspacePromise = assistant.updateWorkspace();
+      expectToBePromise(updateWorkspacePromise);
+
+      updateWorkspacePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -610,7 +585,7 @@ describe('createIntent', () => {
   });
 });
 
-describe('deleteIntent', () => {
+describe('deleteWorkspace', () => {
   describe('positive tests', () => {
     beforeAll(() => {
       missingParamsMock.mockReturnValue(missingParamsSuccess);
@@ -618,46 +593,56 @@ describe('deleteIntent', () => {
     test('should pass the right params to createRequest', () => {
       // parameters
       const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
       const params = {
         workspace_id,
-        intent,
       };
 
       // invoke method
-      assistant.deleteIntent(params);
+      assistant.deleteWorkspace(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
 
       const options = getOptions(createRequestMock);
 
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents/{intent}', 'DELETE');
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}', 'DELETE');
       checkCallback(createRequestMock);
       const expectedAccept = 'application/json';
       const expectedContentType = undefined;
       checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
       expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['intent']).toEqual(intent);
     });
 
     test('should prioritize user-given headers', () => {
       // parameters
       const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
       const accept = 'fake/header';
       const contentType = 'fake/header';
       const params = {
         workspace_id,
-        intent,
         headers: {
           Accept: accept,
           'Content-Type': contentType,
         },
       };
 
-      assistant.deleteIntent(params);
+      assistant.deleteWorkspace(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const deleteWorkspacePromise = assistant.deleteWorkspace(params);
+      expectToBePromise(deleteWorkspacePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -667,7 +652,7 @@ describe('deleteIntent', () => {
     });
 
     test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteIntent(null, () => {
+      assistant.deleteWorkspace(null, () => {
         checkForEmptyObject(missingParamsMock);
         done();
       });
@@ -675,90 +660,22 @@ describe('deleteIntent', () => {
 
     test('should enforce required parameters', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'intent'];
+      const requiredParams = ['workspace_id'];
 
-      assistant.deleteIntent({}, err => {
+      assistant.deleteWorkspace({}, err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
     });
-  });
-});
 
-describe('getIntent', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const _export = 'fake__export';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        workspace_id,
-        intent,
-        _export,
-        include_audit,
-      };
-
-      // invoke method
-      assistant.getIntent(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents/{intent}', 'GET');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['export']).toEqual(_export);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['intent']).toEqual(intent);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        intent,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.getIntent(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.getIntent(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'intent'];
+      const requiredParams = ['workspace_id'];
 
-      assistant.getIntent({}, err => {
+      const deleteWorkspacePromise = assistant.deleteWorkspace();
+      expectToBePromise(deleteWorkspacePromise);
+
+      deleteWorkspacePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -791,7 +708,7 @@ describe('listIntents', () => {
       };
 
       // invoke method
-      assistant.listIntents(params);
+      assistant.listIntents(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -825,8 +742,23 @@ describe('listIntents', () => {
         },
       };
 
-      assistant.listIntents(params);
+      assistant.listIntents(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const listIntentsPromise = assistant.listIntents(params);
+      expectToBePromise(listIntentsPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -847,6 +779,241 @@ describe('listIntents', () => {
       const requiredParams = ['workspace_id'];
 
       assistant.listIntents({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      const listIntentsPromise = assistant.listIntents();
+      expectToBePromise(listIntentsPromise);
+
+      listIntentsPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('createIntent', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const description = 'fake_description';
+      const examples = 'fake_examples';
+      const params = {
+        workspace_id,
+        intent,
+        description,
+        examples,
+      };
+
+      // invoke method
+      assistant.createIntent(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents', 'POST');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = 'application/json';
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.body['intent']).toEqual(intent);
+      expect(options.body['description']).toEqual(description);
+      expect(options.body['examples']).toEqual(examples);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        intent,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.createIntent(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const params = {
+        workspace_id,
+        intent,
+      };
+
+      // invoke method
+      const createIntentPromise = assistant.createIntent(params);
+      expectToBePromise(createIntentPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.createIntent(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      assistant.createIntent({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      const createIntentPromise = assistant.createIntent();
+      expectToBePromise(createIntentPromise);
+
+      createIntentPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('getIntent', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const _export = 'fake__export';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        workspace_id,
+        intent,
+        _export,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.getIntent(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents/{intent}', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['export']).toEqual(_export);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['intent']).toEqual(intent);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        intent,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.getIntent(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const params = {
+        workspace_id,
+        intent,
+      };
+
+      // invoke method
+      const getIntentPromise = assistant.getIntent(params);
+      expectToBePromise(getIntentPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.getIntent(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      assistant.getIntent({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      const getIntentPromise = assistant.getIntent();
+      expectToBePromise(getIntentPromise);
+
+      getIntentPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -875,7 +1042,7 @@ describe('updateIntent', () => {
       };
 
       // invoke method
-      assistant.updateIntent(params);
+      assistant.updateIntent(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -909,8 +1076,25 @@ describe('updateIntent', () => {
         },
       };
 
-      assistant.updateIntent(params);
+      assistant.updateIntent(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const params = {
+        workspace_id,
+        intent,
+      };
+
+      // invoke method
+      const updateIntentPromise = assistant.updateIntent(params);
+      expectToBePromise(updateIntentPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -931,6 +1115,244 @@ describe('updateIntent', () => {
       const requiredParams = ['workspace_id', 'intent'];
 
       assistant.updateIntent({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      const updateIntentPromise = assistant.updateIntent();
+      expectToBePromise(updateIntentPromise);
+
+      updateIntentPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('deleteIntent', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const params = {
+        workspace_id,
+        intent,
+      };
+
+      // invoke method
+      assistant.deleteIntent(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents/{intent}', 'DELETE');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['intent']).toEqual(intent);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        intent,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.deleteIntent(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const params = {
+        workspace_id,
+        intent,
+      };
+
+      // invoke method
+      const deleteIntentPromise = assistant.deleteIntent(params);
+      expectToBePromise(deleteIntentPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.deleteIntent(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      assistant.deleteIntent({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      const deleteIntentPromise = assistant.deleteIntent();
+      expectToBePromise(deleteIntentPromise);
+
+      deleteIntentPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('listExamples', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const page_limit = 'fake_page_limit';
+      const include_count = 'fake_include_count';
+      const sort = 'fake_sort';
+      const cursor = 'fake_cursor';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        workspace_id,
+        intent,
+        page_limit,
+        include_count,
+        sort,
+        cursor,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.listExamples(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents/{intent}/examples', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['page_limit']).toEqual(page_limit);
+      expect(options.qs['include_count']).toEqual(include_count);
+      expect(options.qs['sort']).toEqual(sort);
+      expect(options.qs['cursor']).toEqual(cursor);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['intent']).toEqual(intent);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        intent,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.listExamples(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const params = {
+        workspace_id,
+        intent,
+      };
+
+      // invoke method
+      const listExamplesPromise = assistant.listExamples(params);
+      expectToBePromise(listExamplesPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.listExamples(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      assistant.listExamples({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'intent'];
+
+      const listExamplesPromise = assistant.listExamples();
+      expectToBePromise(listExamplesPromise);
+
+      listExamplesPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -957,7 +1379,7 @@ describe('createExample', () => {
       };
 
       // invoke method
-      assistant.createExample(params);
+      assistant.createExample(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -992,8 +1414,27 @@ describe('createExample', () => {
         },
       };
 
-      assistant.createExample(params);
+      assistant.createExample(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        intent,
+        text,
+      };
+
+      // invoke method
+      const createExamplePromise = assistant.createExample(params);
+      expectToBePromise(createExamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1018,86 +1459,15 @@ describe('createExample', () => {
         done();
       });
     });
-  });
-});
 
-describe('deleteExample', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const text = 'fake_text';
-      const params = {
-        workspace_id,
-        intent,
-        text,
-      };
-
-      // invoke method
-      assistant.deleteExample(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(
-        options,
-        '/v1/workspaces/{workspace_id}/intents/{intent}/examples/{text}',
-        'DELETE'
-      );
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['intent']).toEqual(intent);
-      expect(options.path['text']).toEqual(text);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const text = 'fake_text';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        intent,
-        text,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.deleteExample(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteExample(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
       const requiredParams = ['workspace_id', 'intent', 'text'];
 
-      assistant.deleteExample({}, err => {
+      const createExamplePromise = assistant.createExample();
+      expectToBePromise(createExamplePromise);
+
+      createExamplePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -1124,7 +1494,7 @@ describe('getExample', () => {
       };
 
       // invoke method
-      assistant.getExample(params);
+      assistant.getExample(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -1163,8 +1533,27 @@ describe('getExample', () => {
         },
       };
 
-      assistant.getExample(params);
+      assistant.getExample(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        intent,
+        text,
+      };
+
+      // invoke method
+      const getExamplePromise = assistant.getExample(params);
+      expectToBePromise(getExamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1189,92 +1578,15 @@ describe('getExample', () => {
         done();
       });
     });
-  });
-});
 
-describe('listExamples', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const page_limit = 'fake_page_limit';
-      const include_count = 'fake_include_count';
-      const sort = 'fake_sort';
-      const cursor = 'fake_cursor';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        workspace_id,
-        intent,
-        page_limit,
-        include_count,
-        sort,
-        cursor,
-        include_audit,
-      };
-
-      // invoke method
-      assistant.listExamples(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/intents/{intent}/examples', 'GET');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['page_limit']).toEqual(page_limit);
-      expect(options.qs['include_count']).toEqual(include_count);
-      expect(options.qs['sort']).toEqual(sort);
-      expect(options.qs['cursor']).toEqual(cursor);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['intent']).toEqual(intent);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const intent = 'fake_intent';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        intent,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.listExamples(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.listExamples(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'intent'];
+      const requiredParams = ['workspace_id', 'intent', 'text'];
 
-      assistant.listExamples({}, err => {
+      const getExamplePromise = assistant.getExample();
+      expectToBePromise(getExamplePromise);
+
+      getExamplePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -1303,7 +1615,7 @@ describe('updateExample', () => {
       };
 
       // invoke method
-      assistant.updateExample(params);
+      assistant.updateExample(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -1343,8 +1655,27 @@ describe('updateExample', () => {
         },
       };
 
-      assistant.updateExample(params);
+      assistant.updateExample(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        intent,
+        text,
+      };
+
+      // invoke method
+      const updateExamplePromise = assistant.updateExample(params);
+      expectToBePromise(updateExamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1369,77 +1700,15 @@ describe('updateExample', () => {
         done();
       });
     });
-  });
-});
 
-describe('createCounterexample', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const text = 'fake_text';
-      const params = {
-        workspace_id,
-        text,
-      };
-
-      // invoke method
-      assistant.createCounterexample(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/counterexamples', 'POST');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = 'application/json';
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.body['text']).toEqual(text);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const text = 'fake_text';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        text,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.createCounterexample(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.createCounterexample(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'text'];
+      const requiredParams = ['workspace_id', 'intent', 'text'];
 
-      assistant.createCounterexample({}, err => {
+      const updateExamplePromise = assistant.updateExample();
+      expectToBePromise(updateExamplePromise);
+
+      updateExamplePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -1447,7 +1716,7 @@ describe('createCounterexample', () => {
   });
 });
 
-describe('deleteCounterexample', () => {
+describe('deleteExample', () => {
   describe('positive tests', () => {
     beforeAll(() => {
       missingParamsMock.mockReturnValue(missingParamsSuccess);
@@ -1455,37 +1724,46 @@ describe('deleteCounterexample', () => {
     test('should pass the right params to createRequest', () => {
       // parameters
       const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
       const text = 'fake_text';
       const params = {
         workspace_id,
+        intent,
         text,
       };
 
       // invoke method
-      assistant.deleteCounterexample(params);
+      assistant.deleteExample(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
 
       const options = getOptions(createRequestMock);
 
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/counterexamples/{text}', 'DELETE');
+      checkUrlAndMethod(
+        options,
+        '/v1/workspaces/{workspace_id}/intents/{intent}/examples/{text}',
+        'DELETE'
+      );
       checkCallback(createRequestMock);
       const expectedAccept = 'application/json';
       const expectedContentType = undefined;
       checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
       expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['intent']).toEqual(intent);
       expect(options.path['text']).toEqual(text);
     });
 
     test('should prioritize user-given headers', () => {
       // parameters
       const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
       const text = 'fake_text';
       const accept = 'fake/header';
       const contentType = 'fake/header';
       const params = {
         workspace_id,
+        intent,
         text,
         headers: {
           Accept: accept,
@@ -1493,8 +1771,27 @@ describe('deleteCounterexample', () => {
         },
       };
 
-      assistant.deleteCounterexample(params);
+      assistant.deleteExample(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const intent = 'fake_intent';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        intent,
+        text,
+      };
+
+      // invoke method
+      const deleteExamplePromise = assistant.deleteExample(params);
+      expectToBePromise(deleteExamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1504,7 +1801,7 @@ describe('deleteCounterexample', () => {
     });
 
     test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteCounterexample(null, () => {
+      assistant.deleteExample(null, () => {
         checkForEmptyObject(missingParamsMock);
         done();
       });
@@ -1512,87 +1809,22 @@ describe('deleteCounterexample', () => {
 
     test('should enforce required parameters', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'text'];
+      const requiredParams = ['workspace_id', 'intent', 'text'];
 
-      assistant.deleteCounterexample({}, err => {
+      assistant.deleteExample({}, err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
     });
-  });
-});
 
-describe('getCounterexample', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const text = 'fake_text';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        workspace_id,
-        text,
-        include_audit,
-      };
-
-      // invoke method
-      assistant.getCounterexample(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/counterexamples/{text}', 'GET');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['text']).toEqual(text);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const text = 'fake_text';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        text,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.getCounterexample(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.getCounterexample(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'text'];
+      const requiredParams = ['workspace_id', 'intent', 'text'];
 
-      assistant.getCounterexample({}, err => {
+      const deleteExamplePromise = assistant.deleteExample();
+      expectToBePromise(deleteExamplePromise);
+
+      deleteExamplePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -1623,7 +1855,7 @@ describe('listCounterexamples', () => {
       };
 
       // invoke method
-      assistant.listCounterexamples(params);
+      assistant.listCounterexamples(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -1656,8 +1888,23 @@ describe('listCounterexamples', () => {
         },
       };
 
-      assistant.listCounterexamples(params);
+      assistant.listCounterexamples(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const listCounterexamplesPromise = assistant.listCounterexamples(params);
+      expectToBePromise(listCounterexamplesPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1682,6 +1929,232 @@ describe('listCounterexamples', () => {
         done();
       });
     });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      const listCounterexamplesPromise = assistant.listCounterexamples();
+      expectToBePromise(listCounterexamplesPromise);
+
+      listCounterexamplesPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('createCounterexample', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        text,
+      };
+
+      // invoke method
+      assistant.createCounterexample(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/counterexamples', 'POST');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = 'application/json';
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.body['text']).toEqual(text);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        text,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.createCounterexample(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        text,
+      };
+
+      // invoke method
+      const createCounterexamplePromise = assistant.createCounterexample(params);
+      expectToBePromise(createCounterexamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.createCounterexample(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'text'];
+
+      assistant.createCounterexample({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'text'];
+
+      const createCounterexamplePromise = assistant.createCounterexample();
+      expectToBePromise(createCounterexamplePromise);
+
+      createCounterexamplePromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('getCounterexample', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        workspace_id,
+        text,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.getCounterexample(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/counterexamples/{text}', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['text']).toEqual(text);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        text,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.getCounterexample(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        text,
+      };
+
+      // invoke method
+      const getCounterexamplePromise = assistant.getCounterexample(params);
+      expectToBePromise(getCounterexamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.getCounterexample(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'text'];
+
+      assistant.getCounterexample({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'text'];
+
+      const getCounterexamplePromise = assistant.getCounterexample();
+      expectToBePromise(getCounterexamplePromise);
+
+      getCounterexamplePromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
   });
 });
 
@@ -1702,7 +2175,7 @@ describe('updateCounterexample', () => {
       };
 
       // invoke method
-      assistant.updateCounterexample(params);
+      assistant.updateCounterexample(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -1734,8 +2207,25 @@ describe('updateCounterexample', () => {
         },
       };
 
-      assistant.updateCounterexample(params);
+      assistant.updateCounterexample(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        text,
+      };
+
+      // invoke method
+      const updateCounterexamplePromise = assistant.updateCounterexample(params);
+      expectToBePromise(updateCounterexamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1756,6 +2246,240 @@ describe('updateCounterexample', () => {
       const requiredParams = ['workspace_id', 'text'];
 
       assistant.updateCounterexample({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'text'];
+
+      const updateCounterexamplePromise = assistant.updateCounterexample();
+      expectToBePromise(updateCounterexamplePromise);
+
+      updateCounterexamplePromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('deleteCounterexample', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        text,
+      };
+
+      // invoke method
+      assistant.deleteCounterexample(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/counterexamples/{text}', 'DELETE');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['text']).toEqual(text);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        text,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.deleteCounterexample(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const text = 'fake_text';
+      const params = {
+        workspace_id,
+        text,
+      };
+
+      // invoke method
+      const deleteCounterexamplePromise = assistant.deleteCounterexample(params);
+      expectToBePromise(deleteCounterexamplePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.deleteCounterexample(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'text'];
+
+      assistant.deleteCounterexample({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'text'];
+
+      const deleteCounterexamplePromise = assistant.deleteCounterexample();
+      expectToBePromise(deleteCounterexamplePromise);
+
+      deleteCounterexamplePromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('listEntities', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const _export = 'fake__export';
+      const page_limit = 'fake_page_limit';
+      const include_count = 'fake_include_count';
+      const sort = 'fake_sort';
+      const cursor = 'fake_cursor';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        workspace_id,
+        _export,
+        page_limit,
+        include_count,
+        sort,
+        cursor,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.listEntities(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/entities', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['export']).toEqual(_export);
+      expect(options.qs['page_limit']).toEqual(page_limit);
+      expect(options.qs['include_count']).toEqual(include_count);
+      expect(options.qs['sort']).toEqual(sort);
+      expect(options.qs['cursor']).toEqual(cursor);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.listEntities(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const listEntitiesPromise = assistant.listEntities(params);
+      expectToBePromise(listEntitiesPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.listEntities(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      assistant.listEntities({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      const listEntitiesPromise = assistant.listEntities();
+      expectToBePromise(listEntitiesPromise);
+
+      listEntitiesPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -1786,7 +2510,7 @@ describe('createEntity', () => {
       };
 
       // invoke method
-      assistant.createEntity(params);
+      assistant.createEntity(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -1821,8 +2545,25 @@ describe('createEntity', () => {
         },
       };
 
-      assistant.createEntity(params);
+      assistant.createEntity(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const params = {
+        workspace_id,
+        entity,
+      };
+
+      // invoke method
+      const createEntityPromise = assistant.createEntity(params);
+      expectToBePromise(createEntityPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1847,77 +2588,15 @@ describe('createEntity', () => {
         done();
       });
     });
-  });
-});
 
-describe('deleteEntity', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const params = {
-        workspace_id,
-        entity,
-      };
-
-      // invoke method
-      assistant.deleteEntity(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/entities/{entity}', 'DELETE');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['entity']).toEqual(entity);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        entity,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.deleteEntity(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteEntity(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
       const requiredParams = ['workspace_id', 'entity'];
 
-      assistant.deleteEntity({}, err => {
+      const createEntityPromise = assistant.createEntity();
+      expectToBePromise(createEntityPromise);
+
+      createEntityPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -1944,7 +2623,7 @@ describe('getEntity', () => {
       };
 
       // invoke method
-      assistant.getEntity(params);
+      assistant.getEntity(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -1977,8 +2656,25 @@ describe('getEntity', () => {
         },
       };
 
-      assistant.getEntity(params);
+      assistant.getEntity(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const params = {
+        workspace_id,
+        entity,
+      };
+
+      // invoke method
+      const getEntityPromise = assistant.getEntity(params);
+      expectToBePromise(getEntityPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -2003,90 +2699,15 @@ describe('getEntity', () => {
         done();
       });
     });
-  });
-});
 
-describe('listEntities', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const _export = 'fake__export';
-      const page_limit = 'fake_page_limit';
-      const include_count = 'fake_include_count';
-      const sort = 'fake_sort';
-      const cursor = 'fake_cursor';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        workspace_id,
-        _export,
-        page_limit,
-        include_count,
-        sort,
-        cursor,
-        include_audit,
-      };
-
-      // invoke method
-      assistant.listEntities(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/entities', 'GET');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['export']).toEqual(_export);
-      expect(options.qs['page_limit']).toEqual(page_limit);
-      expect(options.qs['include_count']).toEqual(include_count);
-      expect(options.qs['sort']).toEqual(sort);
-      expect(options.qs['cursor']).toEqual(cursor);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.listEntities(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.listEntities(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id'];
+      const requiredParams = ['workspace_id', 'entity'];
 
-      assistant.listEntities({}, err => {
+      const getEntityPromise = assistant.getEntity();
+      expectToBePromise(getEntityPromise);
+
+      getEntityPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -2119,7 +2740,7 @@ describe('updateEntity', () => {
       };
 
       // invoke method
-      assistant.updateEntity(params);
+      assistant.updateEntity(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -2155,8 +2776,25 @@ describe('updateEntity', () => {
         },
       };
 
-      assistant.updateEntity(params);
+      assistant.updateEntity(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const params = {
+        workspace_id,
+        entity,
+      };
+
+      // invoke method
+      const updateEntityPromise = assistant.updateEntity(params);
+      expectToBePromise(updateEntityPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -2177,6 +2815,124 @@ describe('updateEntity', () => {
       const requiredParams = ['workspace_id', 'entity'];
 
       assistant.updateEntity({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity'];
+
+      const updateEntityPromise = assistant.updateEntity();
+      expectToBePromise(updateEntityPromise);
+
+      updateEntityPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('deleteEntity', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const params = {
+        workspace_id,
+        entity,
+      };
+
+      // invoke method
+      assistant.deleteEntity(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/entities/{entity}', 'DELETE');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['entity']).toEqual(entity);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        entity,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.deleteEntity(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const params = {
+        workspace_id,
+        entity,
+      };
+
+      // invoke method
+      const deleteEntityPromise = assistant.deleteEntity(params);
+      expectToBePromise(deleteEntityPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.deleteEntity(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity'];
+
+      assistant.deleteEntity({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity'];
+
+      const deleteEntityPromise = assistant.deleteEntity();
+      expectToBePromise(deleteEntityPromise);
+
+      deleteEntityPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -2203,7 +2959,7 @@ describe('listMentions', () => {
       };
 
       // invoke method
-      assistant.listMentions(params);
+      assistant.listMentions(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -2236,8 +2992,25 @@ describe('listMentions', () => {
         },
       };
 
-      assistant.listMentions(params);
+      assistant.listMentions(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const params = {
+        workspace_id,
+        entity,
+      };
+
+      // invoke method
+      const listMentionsPromise = assistant.listMentions(params);
+      expectToBePromise(listMentionsPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -2258,6 +3031,142 @@ describe('listMentions', () => {
       const requiredParams = ['workspace_id', 'entity'];
 
       assistant.listMentions({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity'];
+
+      const listMentionsPromise = assistant.listMentions();
+      expectToBePromise(listMentionsPromise);
+
+      listMentionsPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('listValues', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const _export = 'fake__export';
+      const page_limit = 'fake_page_limit';
+      const include_count = 'fake_include_count';
+      const sort = 'fake_sort';
+      const cursor = 'fake_cursor';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        workspace_id,
+        entity,
+        _export,
+        page_limit,
+        include_count,
+        sort,
+        cursor,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.listValues(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/entities/{entity}/values', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['export']).toEqual(_export);
+      expect(options.qs['page_limit']).toEqual(page_limit);
+      expect(options.qs['include_count']).toEqual(include_count);
+      expect(options.qs['sort']).toEqual(sort);
+      expect(options.qs['cursor']).toEqual(cursor);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['entity']).toEqual(entity);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        entity,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.listValues(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const params = {
+        workspace_id,
+        entity,
+      };
+
+      // invoke method
+      const listValuesPromise = assistant.listValues(params);
+      expectToBePromise(listValuesPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.listValues(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity'];
+
+      assistant.listValues({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity'];
+
+      const listValuesPromise = assistant.listValues();
+      expectToBePromise(listValuesPromise);
+
+      listValuesPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -2290,7 +3199,7 @@ describe('createValue', () => {
       };
 
       // invoke method
-      assistant.createValue(params);
+      assistant.createValue(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -2328,8 +3237,27 @@ describe('createValue', () => {
         },
       };
 
-      assistant.createValue(params);
+      assistant.createValue(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+      };
+
+      // invoke method
+      const createValuePromise = assistant.createValue(params);
+      expectToBePromise(createValuePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -2354,86 +3282,15 @@ describe('createValue', () => {
         done();
       });
     });
-  });
-});
 
-describe('deleteValue', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const value = 'fake_value';
-      const params = {
-        workspace_id,
-        entity,
-        value,
-      };
-
-      // invoke method
-      assistant.deleteValue(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(
-        options,
-        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}',
-        'DELETE'
-      );
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['entity']).toEqual(entity);
-      expect(options.path['value']).toEqual(value);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const value = 'fake_value';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        entity,
-        value,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.deleteValue(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteValue(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
       const requiredParams = ['workspace_id', 'entity', 'value'];
 
-      assistant.deleteValue({}, err => {
+      const createValuePromise = assistant.createValue();
+      expectToBePromise(createValuePromise);
+
+      createValuePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -2462,7 +3319,7 @@ describe('getValue', () => {
       };
 
       // invoke method
-      assistant.getValue(params);
+      assistant.getValue(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -2502,8 +3359,27 @@ describe('getValue', () => {
         },
       };
 
-      assistant.getValue(params);
+      assistant.getValue(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+      };
+
+      // invoke method
+      const getValuePromise = assistant.getValue(params);
+      expectToBePromise(getValuePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -2528,95 +3404,15 @@ describe('getValue', () => {
         done();
       });
     });
-  });
-});
 
-describe('listValues', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const _export = 'fake__export';
-      const page_limit = 'fake_page_limit';
-      const include_count = 'fake_include_count';
-      const sort = 'fake_sort';
-      const cursor = 'fake_cursor';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        workspace_id,
-        entity,
-        _export,
-        page_limit,
-        include_count,
-        sort,
-        cursor,
-        include_audit,
-      };
-
-      // invoke method
-      assistant.listValues(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/entities/{entity}/values', 'GET');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['export']).toEqual(_export);
-      expect(options.qs['page_limit']).toEqual(page_limit);
-      expect(options.qs['include_count']).toEqual(include_count);
-      expect(options.qs['sort']).toEqual(sort);
-      expect(options.qs['cursor']).toEqual(cursor);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['entity']).toEqual(entity);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        entity,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.listValues(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.listValues(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'entity'];
+      const requiredParams = ['workspace_id', 'entity', 'value'];
 
-      assistant.listValues({}, err => {
+      const getValuePromise = assistant.getValue();
+      expectToBePromise(getValuePromise);
+
+      getValuePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -2651,7 +3447,7 @@ describe('updateValue', () => {
       };
 
       // invoke method
-      assistant.updateValue(params);
+      assistant.updateValue(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -2694,8 +3490,27 @@ describe('updateValue', () => {
         },
       };
 
-      assistant.updateValue(params);
+      assistant.updateValue(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+      };
+
+      // invoke method
+      const updateValuePromise = assistant.updateValue(params);
+      expectToBePromise(updateValuePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -2720,91 +3535,15 @@ describe('updateValue', () => {
         done();
       });
     });
-  });
-});
 
-describe('createSynonym', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const value = 'fake_value';
-      const synonym = 'fake_synonym';
-      const params = {
-        workspace_id,
-        entity,
-        value,
-        synonym,
-      };
-
-      // invoke method
-      assistant.createSynonym(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(
-        options,
-        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}/synonyms',
-        'POST'
-      );
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = 'application/json';
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.body['synonym']).toEqual(synonym);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['entity']).toEqual(entity);
-      expect(options.path['value']).toEqual(value);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const value = 'fake_value';
-      const synonym = 'fake_synonym';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        entity,
-        value,
-        synonym,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.createSynonym(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.createSynonym(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+      const requiredParams = ['workspace_id', 'entity', 'value'];
 
-      assistant.createSynonym({}, err => {
+      const updateValuePromise = assistant.updateValue();
+      expectToBePromise(updateValuePromise);
+
+      updateValuePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -2812,7 +3551,7 @@ describe('createSynonym', () => {
   });
 });
 
-describe('deleteSynonym', () => {
+describe('deleteValue', () => {
   describe('positive tests', () => {
     beforeAll(() => {
       missingParamsMock.mockReturnValue(missingParamsSuccess);
@@ -2822,16 +3561,14 @@ describe('deleteSynonym', () => {
       const workspace_id = 'fake_workspace_id';
       const entity = 'fake_entity';
       const value = 'fake_value';
-      const synonym = 'fake_synonym';
       const params = {
         workspace_id,
         entity,
         value,
-        synonym,
       };
 
       // invoke method
-      assistant.deleteSynonym(params);
+      assistant.deleteValue(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -2840,7 +3577,7 @@ describe('deleteSynonym', () => {
 
       checkUrlAndMethod(
         options,
-        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}/synonyms/{synonym}',
+        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}',
         'DELETE'
       );
       checkCallback(createRequestMock);
@@ -2850,7 +3587,6 @@ describe('deleteSynonym', () => {
       expect(options.path['workspace_id']).toEqual(workspace_id);
       expect(options.path['entity']).toEqual(entity);
       expect(options.path['value']).toEqual(value);
-      expect(options.path['synonym']).toEqual(synonym);
     });
 
     test('should prioritize user-given headers', () => {
@@ -2858,22 +3594,39 @@ describe('deleteSynonym', () => {
       const workspace_id = 'fake_workspace_id';
       const entity = 'fake_entity';
       const value = 'fake_value';
-      const synonym = 'fake_synonym';
       const accept = 'fake/header';
       const contentType = 'fake/header';
       const params = {
         workspace_id,
         entity,
         value,
-        synonym,
         headers: {
           Accept: accept,
           'Content-Type': contentType,
         },
       };
 
-      assistant.deleteSynonym(params);
+      assistant.deleteValue(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+      };
+
+      // invoke method
+      const deleteValuePromise = assistant.deleteValue(params);
+      expectToBePromise(deleteValuePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -2883,7 +3636,7 @@ describe('deleteSynonym', () => {
     });
 
     test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteSynonym(null, () => {
+      assistant.deleteValue(null, () => {
         checkForEmptyObject(missingParamsMock);
         done();
       });
@@ -2891,101 +3644,22 @@ describe('deleteSynonym', () => {
 
     test('should enforce required parameters', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+      const requiredParams = ['workspace_id', 'entity', 'value'];
 
-      assistant.deleteSynonym({}, err => {
+      assistant.deleteValue({}, err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
     });
-  });
-});
 
-describe('getSynonym', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const value = 'fake_value';
-      const synonym = 'fake_synonym';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        workspace_id,
-        entity,
-        value,
-        synonym,
-        include_audit,
-      };
-
-      // invoke method
-      assistant.getSynonym(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(
-        options,
-        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}/synonyms/{synonym}',
-        'GET'
-      );
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['entity']).toEqual(entity);
-      expect(options.path['value']).toEqual(value);
-      expect(options.path['synonym']).toEqual(synonym);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const entity = 'fake_entity';
-      const value = 'fake_value';
-      const synonym = 'fake_synonym';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        entity,
-        value,
-        synonym,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.getSynonym(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.getSynonym(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+      const requiredParams = ['workspace_id', 'entity', 'value'];
 
-      assistant.getSynonym({}, err => {
+      const deleteValuePromise = assistant.deleteValue();
+      expectToBePromise(deleteValuePromise);
+
+      deleteValuePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -3020,7 +3694,7 @@ describe('listSynonyms', () => {
       };
 
       // invoke method
-      assistant.listSynonyms(params);
+      assistant.listSynonyms(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -3063,8 +3737,27 @@ describe('listSynonyms', () => {
         },
       };
 
-      assistant.listSynonyms(params);
+      assistant.listSynonyms(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+      };
+
+      // invoke method
+      const listSynonymsPromise = assistant.listSynonyms(params);
+      expectToBePromise(listSynonymsPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3085,6 +3778,268 @@ describe('listSynonyms', () => {
       const requiredParams = ['workspace_id', 'entity', 'value'];
 
       assistant.listSynonyms({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value'];
+
+      const listSynonymsPromise = assistant.listSynonyms();
+      expectToBePromise(listSynonymsPromise);
+
+      listSynonymsPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('createSynonym', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+      };
+
+      // invoke method
+      assistant.createSynonym(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(
+        options,
+        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}/synonyms',
+        'POST'
+      );
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = 'application/json';
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.body['synonym']).toEqual(synonym);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['entity']).toEqual(entity);
+      expect(options.path['value']).toEqual(value);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.createSynonym(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+      };
+
+      // invoke method
+      const createSynonymPromise = assistant.createSynonym(params);
+      expectToBePromise(createSynonymPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.createSynonym(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+
+      assistant.createSynonym({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+
+      const createSynonymPromise = assistant.createSynonym();
+      expectToBePromise(createSynonymPromise);
+
+      createSynonymPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('getSynonym', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.getSynonym(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(
+        options,
+        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}/synonyms/{synonym}',
+        'GET'
+      );
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['entity']).toEqual(entity);
+      expect(options.path['value']).toEqual(value);
+      expect(options.path['synonym']).toEqual(synonym);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.getSynonym(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+      };
+
+      // invoke method
+      const getSynonymPromise = assistant.getSynonym(params);
+      expectToBePromise(getSynonymPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.getSynonym(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+
+      assistant.getSynonym({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+
+      const getSynonymPromise = assistant.getSynonym();
+      expectToBePromise(getSynonymPromise);
+
+      getSynonymPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -3113,7 +4068,7 @@ describe('updateSynonym', () => {
       };
 
       // invoke method
-      assistant.updateSynonym(params);
+      assistant.updateSynonym(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -3155,8 +4110,29 @@ describe('updateSynonym', () => {
         },
       };
 
-      assistant.updateSynonym(params);
+      assistant.updateSynonym(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+      };
+
+      // invoke method
+      const updateSynonymPromise = assistant.updateSynonym(params);
+      expectToBePromise(updateSynonymPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3177,6 +4153,255 @@ describe('updateSynonym', () => {
       const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
 
       assistant.updateSynonym({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+
+      const updateSynonymPromise = assistant.updateSynonym();
+      expectToBePromise(updateSynonymPromise);
+
+      updateSynonymPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('deleteSynonym', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+      };
+
+      // invoke method
+      assistant.deleteSynonym(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(
+        options,
+        '/v1/workspaces/{workspace_id}/entities/{entity}/values/{value}/synonyms/{synonym}',
+        'DELETE'
+      );
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['entity']).toEqual(entity);
+      expect(options.path['value']).toEqual(value);
+      expect(options.path['synonym']).toEqual(synonym);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.deleteSynonym(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const entity = 'fake_entity';
+      const value = 'fake_value';
+      const synonym = 'fake_synonym';
+      const params = {
+        workspace_id,
+        entity,
+        value,
+        synonym,
+      };
+
+      // invoke method
+      const deleteSynonymPromise = assistant.deleteSynonym(params);
+      expectToBePromise(deleteSynonymPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.deleteSynonym(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+
+      assistant.deleteSynonym({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'entity', 'value', 'synonym'];
+
+      const deleteSynonymPromise = assistant.deleteSynonym();
+      expectToBePromise(deleteSynonymPromise);
+
+      deleteSynonymPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('listDialogNodes', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const page_limit = 'fake_page_limit';
+      const include_count = 'fake_include_count';
+      const sort = 'fake_sort';
+      const cursor = 'fake_cursor';
+      const include_audit = 'fake_include_audit';
+      const params = {
+        workspace_id,
+        page_limit,
+        include_count,
+        sort,
+        cursor,
+        include_audit,
+      };
+
+      // invoke method
+      assistant.listDialogNodes(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/dialog_nodes', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['page_limit']).toEqual(page_limit);
+      expect(options.qs['include_count']).toEqual(include_count);
+      expect(options.qs['sort']).toEqual(sort);
+      expect(options.qs['cursor']).toEqual(cursor);
+      expect(options.qs['include_audit']).toEqual(include_audit);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        workspace_id,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.listDialogNodes(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const listDialogNodesPromise = assistant.listDialogNodes(params);
+      expectToBePromise(listDialogNodesPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.listDialogNodes(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      assistant.listDialogNodes({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      const listDialogNodesPromise = assistant.listDialogNodes();
+      expectToBePromise(listDialogNodesPromise);
+
+      listDialogNodesPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -3233,7 +4458,7 @@ describe('createDialogNode', () => {
       };
 
       // invoke method
-      assistant.createDialogNode(params);
+      assistant.createDialogNode(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -3281,8 +4506,25 @@ describe('createDialogNode', () => {
         },
       };
 
-      assistant.createDialogNode(params);
+      assistant.createDialogNode(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const dialog_node = 'fake_dialog_node';
+      const params = {
+        workspace_id,
+        dialog_node,
+      };
+
+      // invoke method
+      const createDialogNodePromise = assistant.createDialogNode(params);
+      expectToBePromise(createDialogNodePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3307,81 +4549,15 @@ describe('createDialogNode', () => {
         done();
       });
     });
-  });
-});
 
-describe('deleteDialogNode', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const dialog_node = 'fake_dialog_node';
-      const params = {
-        workspace_id,
-        dialog_node,
-      };
-
-      // invoke method
-      assistant.deleteDialogNode(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(
-        options,
-        '/v1/workspaces/{workspace_id}/dialog_nodes/{dialog_node}',
-        'DELETE'
-      );
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-      expect(options.path['dialog_node']).toEqual(dialog_node);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const dialog_node = 'fake_dialog_node';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        dialog_node,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.deleteDialogNode(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.deleteDialogNode(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
       const requiredParams = ['workspace_id', 'dialog_node'];
 
-      assistant.deleteDialogNode({}, err => {
+      const createDialogNodePromise = assistant.createDialogNode();
+      expectToBePromise(createDialogNodePromise);
+
+      createDialogNodePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -3406,7 +4582,7 @@ describe('getDialogNode', () => {
       };
 
       // invoke method
-      assistant.getDialogNode(params);
+      assistant.getDialogNode(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -3438,8 +4614,25 @@ describe('getDialogNode', () => {
         },
       };
 
-      assistant.getDialogNode(params);
+      assistant.getDialogNode(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const dialog_node = 'fake_dialog_node';
+      const params = {
+        workspace_id,
+        dialog_node,
+      };
+
+      // invoke method
+      const getDialogNodePromise = assistant.getDialogNode(params);
+      expectToBePromise(getDialogNodePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3464,87 +4657,15 @@ describe('getDialogNode', () => {
         done();
       });
     });
-  });
-});
 
-describe('listDialogNodes', () => {
-  describe('positive tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsSuccess);
-    });
-    test('should pass the right params to createRequest', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const page_limit = 'fake_page_limit';
-      const include_count = 'fake_include_count';
-      const sort = 'fake_sort';
-      const cursor = 'fake_cursor';
-      const include_audit = 'fake_include_audit';
-      const params = {
-        workspace_id,
-        page_limit,
-        include_count,
-        sort,
-        cursor,
-        include_audit,
-      };
-
-      // invoke method
-      assistant.listDialogNodes(params);
-
-      // assert that create request was called
-      expect(createRequestMock).toHaveBeenCalledTimes(1);
-
-      const options = getOptions(createRequestMock);
-
-      checkUrlAndMethod(options, '/v1/workspaces/{workspace_id}/dialog_nodes', 'GET');
-      checkCallback(createRequestMock);
-      const expectedAccept = 'application/json';
-      const expectedContentType = undefined;
-      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['page_limit']).toEqual(page_limit);
-      expect(options.qs['include_count']).toEqual(include_count);
-      expect(options.qs['sort']).toEqual(sort);
-      expect(options.qs['cursor']).toEqual(cursor);
-      expect(options.qs['include_audit']).toEqual(include_audit);
-      expect(options.path['workspace_id']).toEqual(workspace_id);
-    });
-
-    test('should prioritize user-given headers', () => {
-      // parameters
-      const workspace_id = 'fake_workspace_id';
-      const accept = 'fake/header';
-      const contentType = 'fake/header';
-      const params = {
-        workspace_id,
-        headers: {
-          Accept: accept,
-          'Content-Type': contentType,
-        },
-      };
-
-      assistant.listDialogNodes(params);
-      checkMediaHeaders(createRequestMock, accept, contentType);
-    });
-  });
-
-  describe('negative tests', () => {
-    beforeAll(() => {
-      missingParamsMock.mockReturnValue(missingParamsError);
-    });
-
-    test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.listDialogNodes(null, () => {
-        checkForEmptyObject(missingParamsMock);
-        done();
-      });
-    });
-
-    test('should enforce required parameters', done => {
+    test('should reject promise when required params are not given', done => {
       // required parameters for this method
-      const requiredParams = ['workspace_id'];
+      const requiredParams = ['workspace_id', 'dialog_node'];
 
-      assistant.listDialogNodes({}, err => {
+      const getDialogNodePromise = assistant.getDialogNode();
+      expectToBePromise(getDialogNodePromise);
+
+      getDialogNodePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -3603,7 +4724,7 @@ describe('updateDialogNode', () => {
       };
 
       // invoke method
-      assistant.updateDialogNode(params);
+      assistant.updateDialogNode(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -3656,8 +4777,25 @@ describe('updateDialogNode', () => {
         },
       };
 
-      assistant.updateDialogNode(params);
+      assistant.updateDialogNode(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const dialog_node = 'fake_dialog_node';
+      const params = {
+        workspace_id,
+        dialog_node,
+      };
+
+      // invoke method
+      const updateDialogNodePromise = assistant.updateDialogNode(params);
+      expectToBePromise(updateDialogNodePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3682,61 +4820,91 @@ describe('updateDialogNode', () => {
         done();
       });
     });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'dialog_node'];
+
+      const updateDialogNodePromise = assistant.updateDialogNode();
+      expectToBePromise(updateDialogNodePromise);
+
+      updateDialogNodePromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
   });
 });
 
-describe('listAllLogs', () => {
+describe('deleteDialogNode', () => {
   describe('positive tests', () => {
     beforeAll(() => {
       missingParamsMock.mockReturnValue(missingParamsSuccess);
     });
     test('should pass the right params to createRequest', () => {
       // parameters
-      const filter = 'fake_filter';
-      const sort = 'fake_sort';
-      const page_limit = 'fake_page_limit';
-      const cursor = 'fake_cursor';
+      const workspace_id = 'fake_workspace_id';
+      const dialog_node = 'fake_dialog_node';
       const params = {
-        filter,
-        sort,
-        page_limit,
-        cursor,
+        workspace_id,
+        dialog_node,
       };
 
       // invoke method
-      assistant.listAllLogs(params);
+      assistant.deleteDialogNode(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
 
       const options = getOptions(createRequestMock);
 
-      checkUrlAndMethod(options, '/v1/logs', 'GET');
+      checkUrlAndMethod(
+        options,
+        '/v1/workspaces/{workspace_id}/dialog_nodes/{dialog_node}',
+        'DELETE'
+      );
       checkCallback(createRequestMock);
       const expectedAccept = 'application/json';
       const expectedContentType = undefined;
       checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
-      expect(options.qs['filter']).toEqual(filter);
-      expect(options.qs['sort']).toEqual(sort);
-      expect(options.qs['page_limit']).toEqual(page_limit);
-      expect(options.qs['cursor']).toEqual(cursor);
+      expect(options.path['workspace_id']).toEqual(workspace_id);
+      expect(options.path['dialog_node']).toEqual(dialog_node);
     });
 
     test('should prioritize user-given headers', () => {
       // parameters
-      const filter = 'fake_filter';
+      const workspace_id = 'fake_workspace_id';
+      const dialog_node = 'fake_dialog_node';
       const accept = 'fake/header';
       const contentType = 'fake/header';
       const params = {
-        filter,
+        workspace_id,
+        dialog_node,
         headers: {
           Accept: accept,
           'Content-Type': contentType,
         },
       };
 
-      assistant.listAllLogs(params);
+      assistant.deleteDialogNode(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const dialog_node = 'fake_dialog_node';
+      const params = {
+        workspace_id,
+        dialog_node,
+      };
+
+      // invoke method
+      const deleteDialogNodePromise = assistant.deleteDialogNode(params);
+      expectToBePromise(deleteDialogNodePromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3746,7 +4914,7 @@ describe('listAllLogs', () => {
     });
 
     test('should convert a `null` value for `params` to an empty object', done => {
-      assistant.listAllLogs(null, () => {
+      assistant.deleteDialogNode(null, () => {
         checkForEmptyObject(missingParamsMock);
         done();
       });
@@ -3754,9 +4922,22 @@ describe('listAllLogs', () => {
 
     test('should enforce required parameters', done => {
       // required parameters for this method
-      const requiredParams = ['filter'];
+      const requiredParams = ['workspace_id', 'dialog_node'];
 
-      assistant.listAllLogs({}, err => {
+      assistant.deleteDialogNode({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id', 'dialog_node'];
+
+      const deleteDialogNodePromise = assistant.deleteDialogNode();
+      expectToBePromise(deleteDialogNodePromise);
+
+      deleteDialogNodePromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });
@@ -3785,7 +4966,7 @@ describe('listLogs', () => {
       };
 
       // invoke method
-      assistant.listLogs(params);
+      assistant.listLogs(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -3817,8 +4998,23 @@ describe('listLogs', () => {
         },
       };
 
-      assistant.listLogs(params);
+      assistant.listLogs(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const workspace_id = 'fake_workspace_id';
+      const params = {
+        workspace_id,
+      };
+
+      // invoke method
+      const listLogsPromise = assistant.listLogs(params);
+      expectToBePromise(listLogsPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3843,6 +5039,126 @@ describe('listLogs', () => {
         done();
       });
     });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['workspace_id'];
+
+      const listLogsPromise = assistant.listLogs();
+      expectToBePromise(listLogsPromise);
+
+      listLogsPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+  });
+});
+
+describe('listAllLogs', () => {
+  describe('positive tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsSuccess);
+    });
+    test('should pass the right params to createRequest', () => {
+      // parameters
+      const filter = 'fake_filter';
+      const sort = 'fake_sort';
+      const page_limit = 'fake_page_limit';
+      const cursor = 'fake_cursor';
+      const params = {
+        filter,
+        sort,
+        page_limit,
+        cursor,
+      };
+
+      // invoke method
+      assistant.listAllLogs(params, noop);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+
+      const options = getOptions(createRequestMock);
+
+      checkUrlAndMethod(options, '/v1/logs', 'GET');
+      checkCallback(createRequestMock);
+      const expectedAccept = 'application/json';
+      const expectedContentType = undefined;
+      checkMediaHeaders(createRequestMock, expectedAccept, expectedContentType);
+      expect(options.qs['filter']).toEqual(filter);
+      expect(options.qs['sort']).toEqual(sort);
+      expect(options.qs['page_limit']).toEqual(page_limit);
+      expect(options.qs['cursor']).toEqual(cursor);
+    });
+
+    test('should prioritize user-given headers', () => {
+      // parameters
+      const filter = 'fake_filter';
+      const accept = 'fake/header';
+      const contentType = 'fake/header';
+      const params = {
+        filter,
+        headers: {
+          Accept: accept,
+          'Content-Type': contentType,
+        },
+      };
+
+      assistant.listAllLogs(params, noop);
+      checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const filter = 'fake_filter';
+      const params = {
+        filter,
+      };
+
+      // invoke method
+      const listAllLogsPromise = assistant.listAllLogs(params);
+      expectToBePromise(listAllLogsPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('negative tests', () => {
+    beforeAll(() => {
+      missingParamsMock.mockReturnValue(missingParamsError);
+    });
+
+    test('should convert a `null` value for `params` to an empty object', done => {
+      assistant.listAllLogs(null, () => {
+        checkForEmptyObject(missingParamsMock);
+        done();
+      });
+    });
+
+    test('should enforce required parameters', done => {
+      // required parameters for this method
+      const requiredParams = ['filter'];
+
+      assistant.listAllLogs({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['filter'];
+
+      const listAllLogsPromise = assistant.listAllLogs();
+      expectToBePromise(listAllLogsPromise);
+
+      listAllLogsPromise.catch(err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
   });
 });
 
@@ -3859,7 +5175,7 @@ describe('deleteUserData', () => {
       };
 
       // invoke method
-      assistant.deleteUserData(params);
+      assistant.deleteUserData(params, noop);
 
       // assert that create request was called
       expect(createRequestMock).toHaveBeenCalledTimes(1);
@@ -3887,8 +5203,23 @@ describe('deleteUserData', () => {
         },
       };
 
-      assistant.deleteUserData(params);
+      assistant.deleteUserData(params, noop);
       checkMediaHeaders(createRequestMock, accept, contentType);
+    });
+
+    test('should return a promise when no callback is given', () => {
+      // parameters
+      const customer_id = 'fake_customer_id';
+      const params = {
+        customer_id,
+      };
+
+      // invoke method
+      const deleteUserDataPromise = assistant.deleteUserData(params);
+      expectToBePromise(deleteUserDataPromise);
+
+      // assert that create request was called
+      expect(createRequestMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -3909,6 +5240,19 @@ describe('deleteUserData', () => {
       const requiredParams = ['customer_id'];
 
       assistant.deleteUserData({}, err => {
+        checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
+        done();
+      });
+    });
+
+    test('should reject promise when required params are not given', done => {
+      // required parameters for this method
+      const requiredParams = ['customer_id'];
+
+      const deleteUserDataPromise = assistant.deleteUserData();
+      expectToBePromise(deleteUserDataPromise);
+
+      deleteUserDataPromise.catch(err => {
         checkRequiredParamsHandling(requiredParams, err, missingParamsMock, createRequestMock);
         done();
       });

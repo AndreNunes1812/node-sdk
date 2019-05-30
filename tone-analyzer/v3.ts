@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 IBM All Rights Reserved.
+ * Copyright 2019 IBM All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ class ToneAnalyzerV3 extends BaseService {
    * @param {string} [options.iam_access_token] - An IAM access token fully managed by the application. Responsibility falls on the application to refresh the token, either before it expires or reactively upon receiving a 401 from the service, as any requests made with an expired token will fail.
    * @param {string} [options.iam_apikey] - An API key that can be used to request IAM tokens. If this API key is provided, the SDK will manage the token and handle the refreshing.
    * @param {string} [options.iam_url] - An optional URL for the IAM service API. Defaults to 'https://iam.cloud.ibm.com/identity/token'.
+   * @param {string} [options.iam_client_id] - client id (username) for request to iam service
+   * @param {string} [options.iam_client_secret] - client secret (password) for request to iam service
    * @param {boolean} [options.use_unauthenticated] - Set to `true` to avoid including an authorization header. This option may be useful for requests that are proxied.
    * @param {Object} [options.headers] - Default headers that shall be included with every request to the service.
    * @param {boolean} [options.headers.X-Watson-Learning-Opt-Out] - Set to `true` to opt-out of data collection. By default, all IBM Watson services log requests and their results. Logging is done only to improve the services for future users. The logged data is not shared or made public. If you are concerned with protecting the privacy of users' personal information or otherwise do not want your requests to be logged, you can opt out of logging.
@@ -63,7 +65,7 @@ class ToneAnalyzerV3 extends BaseService {
   /**
    * Analyze general tone.
    *
-   * Use the general purpose endpoint to analyze the tone of your input content. The service analyzes the content for
+   * Use the general-purpose endpoint to analyze the tone of your input content. The service analyzes the content for
    * emotional and language tones. The method always analyzes the tone of the full document; by default, it also
    * analyzes the tone of each individual sentence of the content.
    *
@@ -78,7 +80,7 @@ class ToneAnalyzerV3 extends BaseService {
    * service removes HTML tags and analyzes only the textual content.
    *
    * **See also:** [Using the general-purpose
-   * endpoint](https://cloud.ibm.com/docs/services/tone-analyzer/using-tone.html#using-the-general-purpose-endpoint).
+   * endpoint](https://cloud.ibm.com/docs/services/tone-analyzer?topic=tone-analyzer-utgpe#utgpe).
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {ToneInput|string} params.tone_input - JSON, plain text, or HTML input that contains the content to be
@@ -154,9 +156,9 @@ class ToneAnalyzerV3 extends BaseService {
   };
 
   /**
-   * Analyze customer engagement tone.
+   * Analyze customer-engagement tone.
    *
-   * Use the customer engagement endpoint to analyze the tone of customer service and customer support conversations.
+   * Use the customer-engagement endpoint to analyze the tone of customer service and customer support conversations.
    * For each utterance of a conversation, the method reports the most prevalent subset of the following seven tones:
    * sad, frustrated, satisfied, excited, polite, impolite, and sympathetic.
    *
@@ -167,7 +169,7 @@ class ToneAnalyzerV3 extends BaseService {
    * UTF-8.
    *
    * **See also:** [Using the customer-engagement
-   * endpoint](https://cloud.ibm.com/docs/services/tone-analyzer/using-tone-chat.html#using-the-customer-engagement-endpoint).
+   * endpoint](https://cloud.ibm.com/docs/services/tone-analyzer?topic=tone-analyzer-utco#utco).
    *
    * @param {Object} params - The parameters to send to the service.
    * @param {Utterance[]} params.utterances - An array of `Utterance` objects that provides the input content that the
@@ -246,6 +248,8 @@ namespace ToneAnalyzerV3 {
     iam_access_token?: string;
     iam_apikey?: string;
     iam_url?: string;
+    iam_client_id?: string;
+    iam_client_secret?: string;
     username?: string;
     password?: string;
     use_unauthenticated?: boolean;
@@ -354,7 +358,7 @@ namespace ToneAnalyzerV3 {
    * model interfaces
    ************************/
 
-  /** An object of type `DocumentAnalysis` that provides the results of the analysis for the full input document. */
+  /** The results of the analysis for the full input content. */
   export interface DocumentAnalysis {
     /** **`2017-09-21`:** An array of `ToneScore` objects that provides the results of the analysis for each qualifying tone of the document. The array includes results for any tone whose score is at least 0.5. The array is empty if no tone has a score that meets this threshold. **`2016-05-19`:** Not returned. */
     tones?: ToneScore[];
@@ -364,7 +368,7 @@ namespace ToneAnalyzerV3 {
     warning?: string;
   }
 
-  /** SentenceAnalysis. */
+  /** The results of the analysis for the individual sentences of the input content. */
   export interface SentenceAnalysis {
     /** The unique identifier of a sentence of the input content. The first sentence has ID 0, and the ID of each subsequent sentence is incremented by one. */
     sentence_id: number;
@@ -380,15 +384,15 @@ namespace ToneAnalyzerV3 {
     input_to?: number;
   }
 
-  /** ToneAnalysis. */
+  /** The tone analysis results for the input from the general-purpose endpoint. */
   export interface ToneAnalysis {
-    /** An object of type `DocumentAnalysis` that provides the results of the analysis for the full input document. */
+    /** The results of the analysis for the full input content. */
     document_tone: DocumentAnalysis;
     /** An array of `SentenceAnalysis` objects that provides the results of the analysis for the individual sentences of the input content. The service returns results only for the first 100 sentences of the input. The field is omitted if the `sentences` parameter of the request is set to `false`. */
     sentences_tone?: SentenceAnalysis[];
   }
 
-  /** ToneCategory. */
+  /** The category for a tone from the input content. */
   export interface ToneCategory {
     /** An array of `ToneScore` objects that provides the results for the tones of the category. */
     tones: ToneScore[];
@@ -398,7 +402,7 @@ namespace ToneAnalyzerV3 {
     category_name: string;
   }
 
-  /** ToneChatScore. */
+  /** The score for an utterance from the input content. */
   export interface ToneChatScore {
     /** The score for the tone in the range of 0.5 to 1. A score greater than 0.75 indicates a high likelihood that the tone is perceived in the utterance. */
     score: number;
@@ -408,13 +412,13 @@ namespace ToneAnalyzerV3 {
     tone_name: string;
   }
 
-  /** ToneInput. */
+  /** Input for the general-purpose endpoint. */
   export interface ToneInput {
     /** The input content that the service is to analyze. */
     text: string;
   }
 
-  /** ToneScore. */
+  /** The score for a tone from the input content. */
   export interface ToneScore {
     /** The score for the tone. * **`2017-09-21`:** The score that is returned lies in the range of 0.5 to 1. A score greater than 0.75 indicates a high likelihood that the tone is perceived in the content. * **`2016-05-19`:** The score that is returned lies in the range of 0 to 1. A score less than 0.5 indicates that the tone is unlikely to be perceived in the content; a score greater than 0.75 indicates a high likelihood that the tone is perceived. */
     score: number;
@@ -424,7 +428,7 @@ namespace ToneAnalyzerV3 {
     tone_name: string;
   }
 
-  /** Utterance. */
+  /** An utterance for the input of the general-purpose endpoint. */
   export interface Utterance {
     /** An utterance contributed by a user in the conversation that is to be analyzed. The utterance can contain multiple sentences. */
     text: string;
@@ -432,7 +436,7 @@ namespace ToneAnalyzerV3 {
     user?: string;
   }
 
-  /** UtteranceAnalyses. */
+  /** The results of the analysis for the utterances of the input content. */
   export interface UtteranceAnalyses {
     /** An array of `UtteranceAnalysis` objects that provides the results for each utterance of the input. */
     utterances_tone: UtteranceAnalysis[];
@@ -440,7 +444,7 @@ namespace ToneAnalyzerV3 {
     warning?: string;
   }
 
-  /** UtteranceAnalysis. */
+  /** The results of the analysis for an utterance of the input content. */
   export interface UtteranceAnalysis {
     /** The unique identifier of the utterance. The first utterance has ID 0, and the ID of each subsequent utterance is incremented by one. */
     utterance_id: number;
